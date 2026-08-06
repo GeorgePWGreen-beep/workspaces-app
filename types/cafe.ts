@@ -11,4 +11,14 @@ export type Cafe = {
   rating: number;
   price: "£" | "££" | "£££";
   walkTime: number;
+
+  image: string;
+
+  description: string;
+
+  coffee: "Excellent" | "Good" | "Basic";
+
+  seating: "Comfortable" | "Average" | "Basic";
+
+  openingHours: string;
 };
