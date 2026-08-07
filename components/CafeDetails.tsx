@@ -1,6 +1,7 @@
 "use client";
 
 import { Cafe } from "@/types/cafe";
+import StudyScore from "./StudyScore";
 
 interface CafeDetailsProps {
   cafe: Cafe;
@@ -26,8 +27,8 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
             {cafe.name}
           </h2>
 
-          <div className="bg-green-500 text-white px-4 py-2 rounded-2xl font-bold shadow-md whitespace-nowrap">
-            {cafe.studyScore}
+          <div className="mr-3 shrink-0">
+            <StudyScore score={cafe.studyScore} size={114} />
           </div>
 
         </div>
