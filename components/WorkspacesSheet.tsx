@@ -448,12 +448,12 @@ export default function WorkspacesSheet({
         onPointerUp={finishDrag}
         onPointerCancel={cancelDrag}
       >
-        <div className="flex shrink-0 justify-center px-4 pb-2 pt-3">
+        <div className="flex shrink-0 justify-center px-4 pb-3 pt-4">
           <div
             aria-hidden="true"
             className="flex h-8 w-20 items-center justify-center"
           >
-            <div className="h-1.5 w-14 rounded-full bg-slate-300" />
+            <div className="h-[5px] w-13 rounded-full bg-slate-400" />
           </div>
         </div>
 

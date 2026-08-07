@@ -1,5 +1,6 @@
 "use client";
 
+import { PlugZap, Search, VolumeX, Wifi } from "lucide-react";
 import { useState } from "react";
 import { cafes } from "@/data/cafes";
 import { Cafe } from "@/types/cafe";
@@ -21,80 +22,82 @@ export default function Sidebar({
     const matchesSearch = cafe.name
       .toLowerCase()
       .includes(search.toLowerCase());
+    const matchesWifi = !greatWifiOnly || cafe.wifi === "Great WiFi";
+    const matchesQuiet = !quietOnly || cafe.noise === "Quiet";
+    const matchesSockets = !plentySocketsOnly || cafe.sockets === "Plenty";
 
-    const matchesWifi =
-      !greatWifiOnly || cafe.wifi === "Great WiFi";
-
-    const matchesQuiet =
-      !quietOnly || cafe.noise === "Quiet";
-
-    const matchesSockets =
-      !plentySocketsOnly || cafe.sockets === "Plenty";
-
-    return (
-      matchesSearch &&
-      matchesWifi &&
-      matchesQuiet &&
-      matchesSockets
-    );
+    return matchesSearch && matchesWifi && matchesQuiet && matchesSockets;
   });
 
   return (
-    <div className="w-96 h-screen bg-slate-50 border-r border-slate-200 overflow-y-auto">
-      <div className="p-4 border-b">
-        <h1 className="text-3xl font-bold tracking-tight">
+    <div className="h-screen w-96 overflow-y-auto border-r border-slate-200 bg-slate-50">
+      <div className="border-b border-slate-200 p-4">
+        <h1 className="text-3xl font-bold tracking-tight text-[#111827]">
           Workspaces
         </h1>
 
-        <p className="text-gray-500 mt-1 mb-5">
+        <p className="mb-5 mt-1 text-[#4B5563]">
           Find your perfect study spot.
         </p>
 
-        <input
-          type="text"
-          placeholder="🔍 Search cafés..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <div className="relative">
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+            strokeWidth={2}
+          />
+          <input
+            type="text"
+            placeholder="Search cafes..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-[#111827] shadow-sm outline-none placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div className="mt-3 flex flex-wrap gap-2">
           <button
+            type="button"
             onClick={() => setGreatWifiOnly(!greatWifiOnly)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
               greatWifiOnly
                 ? "bg-blue-600 text-white shadow-md"
-                : "bg-white border border-slate-200 hover:bg-slate-100"
+                : "border border-slate-200 bg-white text-[#4B5563] hover:bg-slate-100"
             }`}
           >
-            📶 Great WiFi
+            <Wifi aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+            Great WiFi
           </button>
 
           <button
+            type="button"
             onClick={() => setQuietOnly(!quietOnly)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
               quietOnly
                 ? "bg-blue-600 text-white shadow-md"
-                : "bg-white border border-slate-200 hover:bg-slate-100"
+                : "border border-slate-200 bg-white text-[#4B5563] hover:bg-slate-100"
             }`}
           >
-            🔇 Quiet
+            <VolumeX aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+            Quiet
           </button>
 
           <button
+            type="button"
             onClick={() => setPlentySocketsOnly(!plentySocketsOnly)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
               plentySocketsOnly
                 ? "bg-blue-600 text-white shadow-md"
-                : "bg-white border border-slate-200 hover:bg-slate-100"
+                : "border border-slate-200 bg-white text-[#4B5563] hover:bg-slate-100"
             }`}
           >
-            🔌 Sockets
+            <PlugZap aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
+            Sockets
           </button>
         </div>
       </div>
 
-      <div className="p-4 space-y-3">
+      <div className="space-y-3 p-4">
         {filteredCafes.map((cafe) => (
           <CafeCard
             key={cafe.name}

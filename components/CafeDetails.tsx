@@ -1,139 +1,193 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
+import {
+  Armchair,
+  Bookmark,
+  Coffee,
+  MessageSquareText,
+  Navigation,
+  PersonStanding,
+  PlugZap,
+  Star,
+  Users,
+  Volume2,
+  VolumeX,
+  Wallet,
+  Wifi,
+} from "lucide-react";
 import { Cafe } from "@/types/cafe";
+import FeatureChip, { type FeatureTone } from "./FeatureChip";
 import StudyScore from "./StudyScore";
 
 interface CafeDetailsProps {
   cafe: Cafe;
 }
 
-export default function CafeDetails({ cafe }: CafeDetailsProps) {
-  return (
-    <div className="bg-white rounded-t-[32px] overflow-hidden">
+interface InfoChipProps {
+  icon: LucideIcon;
+  label: string;
+}
 
-      {/* Hero Image */}
+interface ActionButtonProps {
+  icon: LucideIcon;
+  label: string;
+}
+
+function InfoChip({ icon: Icon, label }: InfoChipProps) {
+  return (
+    <span className="inline-flex h-9 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 text-sm font-medium text-[#4B5563]">
+      <Icon aria-hidden="true" className="h-4 w-4 text-slate-600" strokeWidth={2} />
+      {label}
+    </span>
+  );
+}
+
+function ActionButton({ icon: Icon, label }: ActionButtonProps) {
+  return (
+    <button
+      type="button"
+      className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-[#374151] shadow-sm transition-[transform,background-color,border-color,box-shadow] duration-150 hover:border-slate-400 hover:bg-slate-50 hover:shadow-md active:scale-[0.98] active:bg-slate-100 active:shadow-none motion-reduce:transform-none"
+    >
+      <Icon aria-hidden="true" className="h-5 w-5 text-slate-700" strokeWidth={2} />
+      <span>{label}</span>
+    </button>
+  );
+}
+
+export default function CafeDetails({ cafe }: CafeDetailsProps) {
+  const features: {
+    id: string;
+    icon: LucideIcon;
+    label: string;
+    tone: FeatureTone;
+  }[] = [
+    {
+      id: "wifi",
+      icon: Wifi,
+      label: cafe.wifi,
+      tone: cafe.wifi === "Okay WiFi" ? "neutral" : "good",
+    },
+    {
+      id: "sockets",
+      icon: PlugZap,
+      label: `${cafe.sockets} sockets`,
+      tone:
+        cafe.sockets === "Plenty"
+          ? "good"
+          : cafe.sockets === "Some"
+            ? "neutral"
+            : "warning",
+    },
+    {
+      id: "noise",
+      icon: cafe.noise === "Quiet" ? VolumeX : Volume2,
+      label: cafe.noise,
+      tone:
+        cafe.noise === "Quiet"
+          ? "good"
+          : cafe.noise === "Moderate"
+            ? "neutral"
+            : "poor",
+    },
+    {
+      id: "busyness",
+      icon: Users,
+      label: cafe.busyness,
+      tone:
+        cafe.busyness === "Quiet"
+          ? "good"
+          : cafe.busyness === "Moderate"
+            ? "neutral"
+            : "warning",
+    },
+    {
+      id: "coffee",
+      icon: Coffee,
+      label: `${cafe.coffee} coffee`,
+      tone:
+        cafe.coffee === "Excellent"
+          ? "good"
+          : cafe.coffee === "Good"
+            ? "neutral"
+            : "warning",
+    },
+    {
+      id: "seating",
+      icon: Armchair,
+      label: `${cafe.seating} seating`,
+      tone:
+        cafe.seating === "Comfortable"
+          ? "good"
+          : cafe.seating === "Average"
+            ? "neutral"
+            : "warning",
+    },
+  ];
+
+  return (
+    <div className="overflow-hidden rounded-t-[32px] bg-white">
       <img
         src={cafe.image}
         alt={cafe.name}
-        className="w-full h-56 object-cover"
+        className="h-56 w-full object-cover"
       />
 
-      <div className="p-6">
-
-        {/* Name + Study Score */}
-        <div className="flex justify-between items-start gap-4">
-
-          <h2 className="text-2xl font-bold text-slate-900 leading-tight">
+      <div className="p-6 pb-8">
+        <div className="flex items-start justify-between gap-5 pr-2">
+          <h2 className="min-w-0 flex-1 text-[28px] font-bold leading-tight tracking-[-0.03em] text-[#111827]">
             {cafe.name}
           </h2>
 
-          <div className="mr-3 shrink-0">
+          <div className="mt-1 shrink-0">
             <StudyScore score={cafe.studyScore} size={114} />
           </div>
-
         </div>
 
-        {/* Rating */}
-        <div className="mt-3 text-amber-500 text-lg">
-          ⭐ {cafe.rating}
+        <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-[#4B5563]">
+          <Star
+            aria-hidden="true"
+            className="h-4 w-4 fill-amber-400 text-amber-500"
+            strokeWidth={2}
+          />
+          <span>{cafe.rating}</span>
         </div>
 
-        {/* Price + Walk */}
-        <div className="flex gap-3 mt-4">
-
-          <div className="bg-slate-100 rounded-full px-4 py-2 text-sm font-medium">
-            💷 {cafe.price}
-          </div>
-
-          <div className="bg-slate-100 rounded-full px-4 py-2 text-sm font-medium">
-            🚶 {cafe.walkTime} min walk
-          </div>
-
+        <div className="mt-4 flex flex-wrap gap-2.5">
+          <InfoChip icon={Wallet} label={cafe.price} />
+          <InfoChip icon={PersonStanding} label={`${cafe.walkTime} min walk`} />
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-slate-200 my-6" />
+        <div className="my-7 border-t border-[#E5E7EB]" />
 
-        {/* Description */}
-        <div>
-
-          <h3 className="font-semibold text-slate-900 mb-2">
-            About
-          </h3>
-
-          <p className="text-slate-600 leading-relaxed">
+        <section>
+          <h3 className="text-base font-semibold text-[#111827]">About</h3>
+          <p className="mt-2 text-[15px] leading-7 text-[#4B5563]">
             {cafe.description}
           </p>
+        </section>
 
-        </div>
+        <div className="my-7 border-t border-[#E5E7EB]" />
 
-        {/* Divider */}
-        <div className="border-t border-slate-200 my-6" />
+        <section>
+          <h3 className="text-base font-semibold text-[#111827]">
+            Study Features
+          </h3>
+          <div className="mt-4 flex flex-wrap gap-2.5">
+            {features.map((feature) => (
+              <FeatureChip key={feature.id} {...feature} />
+            ))}
+          </div>
+        </section>
 
-        {/* Study Features */}
-
-        <h3 className="font-semibold text-slate-900 mb-4">
-          Study Features
-        </h3>
-
-        <div className="flex flex-wrap gap-2">
-
-          <span className="bg-green-100 text-green-700 rounded-full px-3 py-2 text-sm">
-            📶 {cafe.wifi}
-          </span>
-
-          <span className="bg-orange-100 text-orange-700 rounded-full px-3 py-2 text-sm">
-            🔌 {cafe.sockets} sockets
-          </span>
-
-          <span className="bg-purple-100 text-purple-700 rounded-full px-3 py-2 text-sm">
-            🤫 {cafe.noise}
-          </span>
-
-          <span className="bg-blue-100 text-blue-700 rounded-full px-3 py-2 text-sm">
-            👥 {cafe.busyness}
-          </span>
-
-          <span className="bg-yellow-100 text-yellow-700 rounded-full px-3 py-2 text-sm">
-            ☕ {cafe.coffee} coffee
-          </span>
-
-          <span className="bg-pink-100 text-pink-700 rounded-full px-3 py-2 text-sm">
-            💺 {cafe.seating} seating
-          </span>
-
-        </div>
-
-        {/* Divider */}
-
-        <div className="border-t border-slate-200 my-6" />
-
-        {/* Actions */}
+        <div className="my-7 border-t border-[#E5E7EB]" />
 
         <div className="grid grid-cols-3 gap-3">
-
-          <button className="rounded-2xl bg-slate-100 py-3 font-medium hover:bg-slate-200 transition">
-            📍
-            <br />
-            Directions
-          </button>
-
-          <button className="rounded-2xl bg-slate-100 py-3 font-medium hover:bg-slate-200 transition">
-            ⭐
-            <br />
-            Save
-          </button>
-
-          <button className="rounded-2xl bg-slate-100 py-3 font-medium hover:bg-slate-200 transition">
-            ✍️
-            <br />
-            Review
-          </button>
-
+          <ActionButton icon={Navigation} label="Directions" />
+          <ActionButton icon={Bookmark} label="Save" />
+          <ActionButton icon={MessageSquareText} label="Review" />
         </div>
-
       </div>
-
     </div>
   );
 }
