@@ -17,6 +17,7 @@ import {
   Wifi,
 } from "lucide-react";
 import { Cafe } from "@/types/cafe";
+import CafeHeroImage from "./CafeHeroImage";
 import FeatureChip, { type FeatureTone } from "./FeatureChip";
 import StudyScore from "./StudyScore";
 
@@ -127,11 +128,7 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
 
   return (
     <div className="overflow-hidden rounded-t-[32px] bg-white">
-      <img
-        src={cafe.image}
-        alt={cafe.name}
-        className="h-56 w-full object-cover"
-      />
+      <CafeHeroImage src={cafe.image} cafeName={cafe.name} />
 
       <div className="p-6 pb-8">
         <div className="flex items-start justify-between gap-5 pr-2">

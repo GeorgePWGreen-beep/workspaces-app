@@ -1,4 +1,5 @@
 import { Cafe } from "@/types/cafe";
+import { CAFE_IMAGE_PLACEHOLDER } from "@/utils/cafeImages";
 
 export const cafes: Cafe[] = [
   {
@@ -15,7 +16,7 @@ export const cafes: Cafe[] = [
     price: "££",
     walkTime: 5,
 
-    image: "/cafes/bould-brothers.jpg",
+    image: CAFE_IMAGE_PLACEHOLDER,
 
     description:
       "Independent speciality coffee shop with excellent natural lighting and reliable WiFi. A favourite among Cambridge students.",
@@ -40,7 +41,7 @@ export const cafes: Cafe[] = [
     price: "££",
     walkTime: 8,
 
-    image: "/cafes/placeholder.jpg",
+    image: "/cafes/hot-numbers.jpg",
 
     description:
       "Large artisan café with plenty of seating and a relaxed atmosphere ideal for longer study sessions.",
@@ -65,7 +66,7 @@ export const cafes: Cafe[] = [
     price: "££",
     walkTime: 6,
 
-    image: "/cafes/placeholder.jpg",
+    image: CAFE_IMAGE_PLACEHOLDER,
 
     description:
       "Popular student workspace with reliable WiFi, spacious tables and a calm working environment.",
@@ -90,7 +91,7 @@ export const cafes: Cafe[] = [
     price: "££",
     walkTime: 9,
 
-    image: "/cafes/placeholder.jpg",
+    image: CAFE_IMAGE_PLACEHOLDER,
 
     description:
       "Relaxed independent café with quieter corners and comfortable seating for focused work.",
@@ -115,7 +116,7 @@ export const cafes: Cafe[] = [
     price: "££",
     walkTime: 4,
 
-    image: "/cafes/placeholder.jpg",
+    image: CAFE_IMAGE_PLACEHOLDER,
 
     description:
       "Authentic Sicilian café with amazing food and coffee, better suited to shorter study sessions.",
@@ -140,7 +141,7 @@ export const cafes: Cafe[] = [
     price: "£££",
     walkTime: 5,
 
-    image: "/cafes/placeholder.jpg",
+    image: CAFE_IMAGE_PLACEHOLDER,
 
     description:
       "Historic Cambridge café famous for its Chelsea buns and lively atmosphere rather than long study sessions.",
