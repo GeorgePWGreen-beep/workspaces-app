@@ -8,16 +8,11 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { useEffect, useState } from "react";
+import { getStudyScoreColor, normalizeStudyScore } from "@/utils/studyScore";
 
 interface StudyScoreProps {
   score: number;
   size?: number;
-}
-
-interface ScoreColor {
-  stroke: string;
-  shadow: string;
-  text: string;
 }
 
 const VIEWBOX_SIZE = 120;
@@ -30,63 +25,12 @@ const START_DELAY_MS = 50;
 const DRAW_DURATION_SECONDS = 0.8;
 const PULSE_DURATION_SECONDS = 0.17;
 
-function getScoreColor(score: number): ScoreColor {
-  if (score >= 95) {
-    return {
-      stroke: "#0F766E",
-      shadow: "rgba(15, 118, 110, 0.16)",
-      text: "#115E59",
-    };
-  }
-  if (score >= 90) {
-    return {
-      stroke: "#16A34A",
-      shadow: "rgba(22, 163, 74, 0.16)",
-      text: "#166534",
-    };
-  }
-  if (score >= 80) {
-    return {
-      stroke: "#65A30D",
-      shadow: "rgba(101, 163, 13, 0.16)",
-      text: "#3F6212",
-    };
-  }
-  if (score >= 70) {
-    return {
-      stroke: "#CA8A04",
-      shadow: "rgba(202, 138, 4, 0.16)",
-      text: "#854D0E",
-    };
-  }
-  if (score >= 60) {
-    return {
-      stroke: "#D97706",
-      shadow: "rgba(217, 119, 6, 0.16)",
-      text: "#92400E",
-    };
-  }
-  if (score >= 40) {
-    return {
-      stroke: "#EA580C",
-      shadow: "rgba(234, 88, 12, 0.16)",
-      text: "#9A3412",
-    };
-  }
-
-  return {
-    stroke: "#DC2626",
-    shadow: "rgba(220, 38, 38, 0.16)",
-    text: "#991B1B",
-  };
-}
-
 export default function StudyScore({ score, size = 128 }: StudyScoreProps) {
-  const value = Math.min(100, Math.max(0, Math.round(score)));
+  const value = normalizeStudyScore(score);
   const diameter = Math.max(72, size);
   const progress = value / 100;
   const dashOffset = CIRCUMFERENCE * (1 - progress);
-  const color = getScoreColor(value);
+  const color = getStudyScoreColor(value);
   const shouldReduceMotion = useReducedMotion();
   const [scope, animate] = useAnimate();
   const progressOffset = useMotionValue(CIRCUMFERENCE);

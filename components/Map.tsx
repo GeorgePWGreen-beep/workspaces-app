@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Cafe } from "@/types/cafe";
+import { getStudyScoreColor } from "@/utils/studyScore";
 
 import { cafes } from "@/data/cafes";
 
@@ -33,12 +34,7 @@ export default function Map({
     cafes.forEach((cafe) => {
       const markerElement = document.createElement("div");
 
-const colour =
-  cafe.studyScore >= 90
-    ? "#22c55e"
-    : cafe.studyScore >= 75
-    ? "#f59e0b"
-    : "#ef4444";
+const colour = getStudyScoreColor(cafe.studyScore).stroke;
 
 markerElement.innerHTML = `
 <div style="
