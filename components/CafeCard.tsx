@@ -41,9 +41,9 @@ export default function CafeCard({
   return (
     <div
       onClick={onClick}
-      className={`group cursor-pointer rounded-3xl border border-slate-200 bg-white p-5 transition-all duration-300 ${
+      className={`group cursor-pointer rounded-3xl border border-[color:var(--hs-border)] bg-white p-5 transition-all duration-300 ${
         selected
-          ? "ring-2 ring-blue-500 shadow-xl"
+          ? "ring-2 ring-[color:var(--hs-sage)] shadow-xl"
           : "hover:-translate-y-1 hover:shadow-xl"
       }`}
     >
@@ -53,7 +53,7 @@ export default function CafeCard({
             <Coffee aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
           </div>
 
-          <h2 className="text-lg font-bold text-[#111827]">{cafe.name}</h2>
+          <h2 className="text-lg font-bold text-[color:var(--hs-ink)]">{cafe.name}</h2>
         </div>
 
         <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800">
@@ -67,11 +67,11 @@ export default function CafeCard({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-slate-100 px-3 text-sm font-medium text-[#4B5563]">
+        <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[color:var(--hs-canvas)] px-3 text-sm font-medium text-[color:var(--hs-muted)]">
           <Wallet aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
           {cafe.price}
         </span>
-        <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-slate-100 px-3 text-sm font-medium text-[#4B5563]">
+        <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[color:var(--hs-canvas)] px-3 text-sm font-medium text-[color:var(--hs-muted)]">
           <PersonStanding aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
           {cafe.walkTime} min
         </span>

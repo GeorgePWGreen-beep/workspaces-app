@@ -1,16 +1,14 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const geist = localFont({
-  src: "../node_modules/next/dist/next-devtools/server/font/geist-latin.woff2",
-  variable: "--font-geist-sans",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "Workspaces App",
-  description: "Find the best places to work",
+  title: "Hot Seats — Find your study spot",
+  description: "Find a study-friendly café near you.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#fafaf7",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -20,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={geist.variable}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

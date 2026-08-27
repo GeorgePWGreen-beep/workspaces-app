@@ -10,9 +10,13 @@ import { Cafe } from "@/types/cafe";
 
 export default function Home() {
   const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
+  const [search, setSearch] = useState("");
+  const [greatWifiOnly, setGreatWifiOnly] = useState(false);
+  const [quietOnly, setQuietOnly] = useState(false);
+  const [plentySocketsOnly, setPlentySocketsOnly] = useState(false);
 
   return (
-    <div className="flex h-screen relative">
+    <div className="relative flex h-[100dvh] overflow-hidden">
 
       {/* Desktop Sidebar */}
 
@@ -20,6 +24,16 @@ export default function Home() {
         <Sidebar
           selectedCafe={selectedCafe}
           setSelectedCafe={setSelectedCafe}
+          search={search}
+          onSearchChange={setSearch}
+          greatWifiOnly={greatWifiOnly}
+          onToggleGreatWifi={() => setGreatWifiOnly((current) => !current)}
+          quietOnly={quietOnly}
+          onToggleQuiet={() => setQuietOnly((current) => !current)}
+          plentySocketsOnly={plentySocketsOnly}
+          onTogglePlentySockets={() =>
+            setPlentySocketsOnly((current) => !current)
+          }
         />
       </div>
 
@@ -32,13 +46,23 @@ export default function Home() {
         />
       </div>
 
-      <FloatingSearch />
+      <FloatingSearch
+        search={search}
+        onSearchChange={setSearch}
+        greatWifiOnly={greatWifiOnly}
+        onToggleGreatWifi={() => setGreatWifiOnly((current) => !current)}
+        quietOnly={quietOnly}
+        onToggleQuiet={() => setQuietOnly((current) => !current)}
+        plentySocketsOnly={plentySocketsOnly}
+        onTogglePlentySockets={() =>
+          setPlentySocketsOnly((current) => !current)
+        }
+      />
 
       <WorkspacesSheet
-    selectedCafe={selectedCafe}
-    setSelectedCafe={setSelectedCafe}
-/>
-
+        selectedCafe={selectedCafe}
+        setSelectedCafe={setSelectedCafe}
+      />
     </div>
   );
 }

@@ -442,7 +442,10 @@ export default function WorkspacesSheet({
         className={`fixed inset-x-0 bottom-0 z-50 flex h-[95dvh] flex-col overflow-hidden rounded-t-[32px] bg-white shadow-2xl md:hidden ${
           sheetState === "collapsed" ? "touch-none" : ""
         }`}
-        style={{ y: sheetY }}
+        style={{
+          y: sheetY,
+          backgroundColor: "var(--hs-surface, #FFFFFF)",
+        }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={finishDrag}
@@ -453,15 +456,16 @@ export default function WorkspacesSheet({
             aria-hidden="true"
             className="flex h-8 w-20 items-center justify-center"
           >
-            <div className="h-[5px] w-13 rounded-full bg-slate-400" />
+            <div className="h-[5px] w-13 rounded-full bg-[color:var(--hs-sage)]" />
           </div>
         </div>
 
         <div
           ref={contentRef}
-          className={`min-h-0 flex-1 overscroll-contain pb-[env(safe-area-inset-bottom)] ${
+          className={`min-h-0 flex-1 overscroll-contain bg-white pb-[env(safe-area-inset-bottom)] ${
             isContentScrollable ? "overflow-y-auto touch-pan-y" : "overflow-y-hidden"
           }`}
+          style={{ backgroundColor: "var(--hs-surface, #FFFFFF)" }}
         >
           <CafeDetails cafe={selectedCafe} />
         </div>

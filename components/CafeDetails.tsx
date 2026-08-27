@@ -33,24 +33,45 @@ interface InfoChipProps {
 interface ActionButtonProps {
   icon: LucideIcon;
   label: string;
+  variant?: "primary" | "secondary";
 }
 
 function InfoChip({ icon: Icon, label }: InfoChipProps) {
   return (
-    <span className="inline-flex h-9 items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 text-sm font-medium text-[#4B5563]">
-      <Icon aria-hidden="true" className="h-4 w-4 text-slate-600" strokeWidth={2} />
+    <span className="inline-flex h-9 items-center gap-2 rounded-full border border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)] px-3.5 text-sm font-medium text-[#6B746D]">
+      <Icon
+        aria-hidden="true"
+        className="h-4 w-4 text-[#6B746D]"
+        strokeWidth={2}
+      />
       {label}
     </span>
   );
 }
 
-function ActionButton({ icon: Icon, label }: ActionButtonProps) {
+function ActionButton({
+  icon: Icon,
+  label,
+  variant = "secondary",
+}: ActionButtonProps) {
+  const isPrimary = variant === "primary";
+
   return (
     <button
       type="button"
-      className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-3 py-3 text-sm font-semibold text-[#374151] shadow-sm transition-[transform,background-color,border-color,box-shadow] duration-150 hover:border-slate-400 hover:bg-slate-50 hover:shadow-md active:scale-[0.98] active:bg-slate-100 active:shadow-none motion-reduce:transform-none"
+      className={`flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-3 text-sm font-semibold transition-[transform,background-color,border-color,box-shadow] duration-150 active:scale-[0.98] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-sage)] focus-visible:ring-offset-2 ${
+        isPrimary
+          ? "border-[color:var(--hs-sage-dark)] bg-[color:var(--hs-sage-dark)] text-white shadow-sm hover:shadow-md active:shadow-none"
+          : "border-[color:var(--hs-border)] bg-white text-[#1C211D] shadow-sm hover:border-[color:var(--hs-sage)] hover:bg-[color:var(--hs-sage-soft)] hover:shadow-md active:shadow-none"
+      }`}
     >
-      <Icon aria-hidden="true" className="h-5 w-5 text-slate-700" strokeWidth={2} />
+      <Icon
+        aria-hidden="true"
+        className={`h-5 w-5 ${
+          isPrimary ? "text-white" : "text-[#1C211D]"
+        }`}
+        strokeWidth={2}
+      />
       <span>{label}</span>
     </button>
   );
@@ -127,12 +148,15 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
   ];
 
   return (
-    <div className="overflow-hidden rounded-t-[32px] bg-white">
+    <div
+      className="overflow-hidden rounded-t-[32px] bg-white text-[#1C211D]"
+      style={{ backgroundColor: "var(--hs-surface, #FFFFFF)" }}
+    >
       <CafeHeroImage src={cafe.image} cafeName={cafe.name} />
 
       <div className="p-6 pb-8">
         <div className="flex items-start justify-between gap-5 pr-2">
-          <h2 className="min-w-0 flex-1 text-[28px] font-bold leading-tight tracking-[-0.03em] text-[#111827]">
+          <h2 className="min-w-0 flex-1 text-[28px] font-bold leading-tight tracking-[-0.03em] text-[#1C211D]">
             {cafe.name}
           </h2>
 
@@ -141,7 +165,7 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
           </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-[#4B5563]">
+        <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-[#6B746D]">
           <Star
             aria-hidden="true"
             className="h-4 w-4 fill-amber-400 text-amber-500"
@@ -155,19 +179,19 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
           <InfoChip icon={PersonStanding} label={`${cafe.walkTime} min walk`} />
         </div>
 
-        <div className="my-7 border-t border-[#E5E7EB]" />
+        <div className="my-7 border-t border-[color:var(--hs-border)]" />
 
         <section>
-          <h3 className="text-base font-semibold text-[#111827]">About</h3>
-          <p className="mt-2 text-[15px] leading-7 text-[#4B5563]">
+          <h3 className="text-base font-semibold text-[#1C211D]">About</h3>
+          <p className="mt-2 text-[15px] leading-7 text-[#4F5851]">
             {cafe.description}
           </p>
         </section>
 
-        <div className="my-7 border-t border-[#E5E7EB]" />
+        <div className="my-7 border-t border-[color:var(--hs-border)]" />
 
         <section>
-          <h3 className="text-base font-semibold text-[#111827]">
+          <h3 className="text-base font-semibold text-[#1C211D]">
             Study Features
           </h3>
           <div className="mt-4 flex flex-wrap gap-2.5">
@@ -177,10 +201,10 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
           </div>
         </section>
 
-        <div className="my-7 border-t border-[#E5E7EB]" />
+        <div className="my-7 border-t border-[color:var(--hs-border)]" />
 
         <div className="grid grid-cols-3 gap-3">
-          <ActionButton icon={Navigation} label="Directions" />
+          <ActionButton icon={Navigation} label="Directions" variant="primary" />
           <ActionButton icon={Bookmark} label="Save" />
           <ActionButton icon={MessageSquareText} label="Review" />
         </div>
