@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import Image from "next/image";
 import {
+  ChevronRight,
   Coffee,
   PersonStanding,
   PlugZap,
@@ -11,19 +14,50 @@ import {
   Wifi,
 } from "lucide-react";
 import { Cafe } from "@/types/cafe";
+import { CAFE_IMAGE_PLACEHOLDER } from "@/utils/cafeImages";
+import { getStudyScoreColor } from "@/utils/studyScore";
 import FeatureChip, { type FeatureTone } from "./FeatureChip";
 
 interface CafeCardProps {
   cafe: Cafe;
   selected: boolean;
   onClick: () => void;
+  variant?: "sidebar" | "sheet";
 }
 
-export default function CafeCard({
-  cafe,
-  selected,
-  onClick,
-}: CafeCardProps) {
+interface CafeCardImageProps {
+  src: string;
+  cafeName: string;
+}
+
+function CafeCardImage({ src, cafeName }: CafeCardImageProps) {
+  const [imageSource, setImageSource] = useState<string | null>(
+    src || CAFE_IMAGE_PLACEHOLDER,
+  );
+
+  return (
+    <div className="relative h-full w-[100px] shrink-0 overflow-hidden rounded-[18px] bg-[color:var(--hs-canvas)] max-[374px]:w-[90px]">
+      {imageSource && (
+        <Image
+          fill
+          src={imageSource}
+          alt={`Interior of ${cafeName}`}
+          sizes="(max-width: 374px) 90px, 100px"
+          className="object-cover"
+          onError={() =>
+            setImageSource((currentSource) =>
+              currentSource === CAFE_IMAGE_PLACEHOLDER
+                ? null
+                : CAFE_IMAGE_PLACEHOLDER,
+            )
+          }
+        />
+      )}
+    </div>
+  );
+}
+
+function getFeatureTones(cafe: Cafe) {
   const wifiTone: FeatureTone = cafe.wifi === "Okay WiFi" ? "neutral" : "good";
   const noiseTone: FeatureTone =
     cafe.noise === "Quiet"
@@ -38,56 +72,143 @@ export default function CafeCard({
         ? "neutral"
         : "warning";
 
-  return (
-    <div
-      onClick={onClick}
-      className={`group cursor-pointer rounded-3xl border border-[color:var(--hs-border)] bg-white p-5 transition-all duration-300 ${
-        selected
-          ? "ring-2 ring-[color:var(--hs-sage)] shadow-xl"
-          : "hover:-translate-y-1 hover:shadow-xl"
-      }`}
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
-            <Coffee aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
+  return { wifiTone, noiseTone, socketsTone };
+}
+
+export default function CafeCard({
+  cafe,
+  selected,
+  onClick,
+  variant = "sidebar",
+}: CafeCardProps) {
+  const { wifiTone, noiseTone, socketsTone } = getFeatureTones(cafe);
+
+  if (variant === "sidebar") {
+    return (
+      <div
+        onClick={onClick}
+        className={`group cursor-pointer rounded-3xl border border-[color:var(--hs-border)] bg-white p-5 transition-all duration-300 ${
+          selected
+            ? "ring-2 ring-[color:var(--hs-sage)] shadow-xl"
+            : "hover:-translate-y-1 hover:shadow-xl"
+        }`}
+      >
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+              <Coffee aria-hidden="true" className="h-5 w-5" strokeWidth={2} />
+            </div>
+
+            <h2 className="text-lg font-bold text-[color:var(--hs-ink)]">
+              {cafe.name}
+            </h2>
           </div>
 
-          <h2 className="text-lg font-bold text-[color:var(--hs-ink)]">{cafe.name}</h2>
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800">
+            <Star
+              aria-hidden="true"
+              className="h-3.5 w-3.5 fill-amber-400 text-amber-500"
+              strokeWidth={2}
+            />
+            {cafe.rating}
+          </div>
         </div>
 
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-800">
-          <Star
-            aria-hidden="true"
-            className="h-3.5 w-3.5 fill-amber-400 text-amber-500"
-            strokeWidth={2}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[color:var(--hs-canvas)] px-3 text-sm font-medium text-[color:var(--hs-muted)]">
+            <Wallet aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
+            {cafe.price}
+          </span>
+          <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[color:var(--hs-canvas)] px-3 text-sm font-medium text-[color:var(--hs-muted)]">
+            <PersonStanding
+              aria-hidden="true"
+              className="h-3.5 w-3.5"
+              strokeWidth={2}
+            />
+            {cafe.walkTime} min
+          </span>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <FeatureChip icon={Wifi} label={cafe.wifi} tone={wifiTone} />
+          <FeatureChip
+            icon={cafe.noise === "Quiet" ? VolumeX : Volume2}
+            label={cafe.noise}
+            tone={noiseTone}
           />
-          {cafe.rating}
+          <FeatureChip
+            icon={PlugZap}
+            label={`${cafe.sockets} sockets`}
+            tone={socketsTone}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  const scoreColor = getStudyScoreColor(cafe.studyScore);
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      data-sheet-interactive=""
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+      className={`hs-cafe-list-card flex h-[136px] cursor-pointer items-stretch gap-1 rounded-[22px] p-2 text-left transition-[transform,box-shadow,ring] duration-150 active:scale-[0.99] motion-reduce:transform-none ${
+        selected ? "ring-2 ring-[color:var(--hs-green)]" : ""
+      }`}
+    >
+      <CafeCardImage src={cafe.image} cafeName={cafe.name} />
+
+      <div className="min-w-0 flex-1 py-1">
+        <h2 className="max-h-[42px] overflow-hidden text-[19px] font-bold leading-[1.1] tracking-[-0.02em] text-[color:var(--hs-text)] max-[374px]:text-[18px]">
+          {cafe.name}
+        </h2>
+
+        <div className="mt-1.5 flex min-w-0 items-center gap-1.5 whitespace-nowrap text-[14px] font-medium text-[color:var(--hs-text-secondary)] max-[374px]:gap-1 max-[374px]:text-[13px]">
+          <Star aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.9} />
+          <span>{cafe.rating}</span>
+          <span aria-hidden="true" className="h-3 border-l border-[color:var(--hs-border)]" />
+          <span>{cafe.price}</span>
+          <span aria-hidden="true" className="h-3 border-l border-[color:var(--hs-border)]" />
+          <PersonStanding aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.9} />
+          <span>{cafe.walkTime} min</span>
+        </div>
+
+        <div className="mt-2 flex gap-1 overflow-hidden">
+          <span className="hs-cafe-feature-pill inline-flex h-7 items-center rounded-full px-2 text-[12px] font-medium text-[color:var(--hs-text-secondary)]">
+            <span className="whitespace-nowrap">{cafe.wifi}</span>
+          </span>
+          <span className="hs-cafe-feature-pill inline-flex h-7 items-center rounded-full px-2 text-[12px] font-medium text-[color:var(--hs-text-secondary)] max-[374px]:hidden">
+            <span className="whitespace-nowrap">{cafe.noise}</span>
+          </span>
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[color:var(--hs-canvas)] px-3 text-sm font-medium text-[color:var(--hs-muted)]">
-          <Wallet aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
-          {cafe.price}
-        </span>
-        <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[color:var(--hs-canvas)] px-3 text-sm font-medium text-[color:var(--hs-muted)]">
-          <PersonStanding aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
-          {cafe.walkTime} min
-        </span>
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        <FeatureChip icon={Wifi} label={cafe.wifi} tone={wifiTone} />
-        <FeatureChip
-          icon={cafe.noise === "Quiet" ? VolumeX : Volume2}
-          label={cafe.noise}
-          tone={noiseTone}
-        />
-        <FeatureChip
-          icon={PlugZap}
-          label={`${cafe.sockets} sockets`}
-          tone={socketsTone}
+      <div className="flex shrink-0 items-center gap-px">
+        <div className="flex flex-col items-center">
+          <div
+            className="grid h-16 w-16 place-items-center rounded-[17px] text-[32px] font-extrabold leading-none tracking-[-0.055em] text-white shadow-[0_5px_12px_rgba(20,25,21,0.13)] max-[374px]:h-[60px] max-[374px]:w-[60px] max-[374px]:text-[29px]"
+            style={{
+              background: `linear-gradient(145deg, ${scoreColor.stroke}, ${scoreColor.text})`,
+            }}
+          >
+            {cafe.studyScore}
+          </div>
+          <span className="mt-1 whitespace-nowrap text-[9px] font-semibold tracking-[0.015em] text-[color:var(--hs-text-secondary)] max-[374px]:text-[8px]">
+            STUDY SCORE
+          </span>
+        </div>
+        <ChevronRight
+          aria-hidden="true"
+          className="h-3.5 w-3.5 shrink-0 text-[color:var(--hs-text-secondary)]"
+          strokeWidth={1.9}
         />
       </div>
     </div>
