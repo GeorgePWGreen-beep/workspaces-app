@@ -2,14 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { animate, motion, useMotionValue } from "framer-motion";
-import { cafes } from "@/data/cafes";
+import { Bookmark, UsersRound, type LucideIcon } from "lucide-react";
 import { Cafe } from "@/types/cafe";
 import CafeCard from "./CafeCard";
 import CafeDetails from "./CafeDetails";
 
 interface WorkspacesSheetProps {
+  cafes: Cafe[];
+  mode: "nearby" | "saved" | "friends" | "cafe" | null;
   selectedCafe: Cafe | null;
-  setSelectedCafe: React.Dispatch<React.SetStateAction<Cafe | null>>;
+  onSelectCafe: (cafe: Cafe) => void;
+  onDismissed: () => void;
 }
 
 type SheetState = "closed" | "collapsed" | "expanded";
@@ -46,9 +49,29 @@ const SPRING = {
 const INTERACTIVE_SELECTOR =
   "a, button, input, select, textarea, [contenteditable='true'], [role='button'], [data-sheet-interactive]";
 
-const nearbyCafes = [...cafes].sort(
-  (firstCafe, secondCafe) => secondCafe.studyScore - firstCafe.studyScore,
-);
+function EmptySheet({
+  title,
+  message,
+  icon: Icon,
+}: {
+  title: string;
+  message: string;
+  icon: LucideIcon;
+}) {
+  return (
+    <div className="flex min-h-[250px] flex-col items-center justify-center px-8 pb-10 text-center">
+      <div className="grid h-14 w-14 place-items-center rounded-full bg-[color:var(--hs-green-soft)] text-[color:var(--hs-green)]">
+        <Icon aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
+      </div>
+      <h2 className="mt-4 text-[27px] font-bold leading-none tracking-[-0.026em] text-[color:var(--hs-text)]">
+        {title}
+      </h2>
+      <p className="mt-2 max-w-[260px] text-[16px] leading-6 text-[color:var(--hs-text-secondary)]">
+        {message}
+      </p>
+    </div>
+  );
+}
 
 function getCollapsedOffset(sheetHeight?: number) {
   if (typeof window === "undefined") return 0;
@@ -117,16 +140,20 @@ function getReleaseState(
 }
 
 export default function WorkspacesSheet({
+  cafes,
+  mode,
   selectedCafe,
-  setSelectedCafe,
+  onSelectCafe,
+  onDismissed,
 }: WorkspacesSheetProps) {
+  const nearbyCafes = [...cafes].sort(
+    (firstCafe, secondCafe) => secondCafe.studyScore - firstCafe.studyScore,
+  );
   const sheetRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const dragSessionRef = useRef<DragSession | null>(null);
   const stopAnimationRef = useRef<(() => void) | null>(null);
   const transitionIdRef = useRef(0);
-  const wasOpenRef = useRef(false);
-  const hasInitializedRef = useRef(false);
   const closeAfterCollapseRef = useRef(false);
   const closeSheetRef = useRef<() => void>(() => undefined);
   const animateToStateRef = useRef<((nextState: OpenSheetState) => void) | null>(
@@ -213,14 +240,13 @@ export default function WorkspacesSheet({
       stopAnimationRef.current = null;
       setIsClosing(false);
       setIsSheetVisible(false);
-      wasOpenRef.current = false;
-      setSelectedCafe(null);
+      onDismissed();
     });
   }, [
     animateToState,
     isClosing,
     isSheetVisible,
-    setSelectedCafe,
+    onDismissed,
     sheetState,
     sheetY,
   ]);
@@ -234,27 +260,7 @@ export default function WorkspacesSheet({
   }, [animateToState]);
 
   useEffect(() => {
-    if (hasInitializedRef.current) return;
-
-    hasInitializedRef.current = true;
-    const frame = window.requestAnimationFrame(() => {
-      sheetY.set(getClosedOffset(sheetRef.current?.offsetHeight));
-      setIsSheetVisible(true);
-      animateToStateRef.current?.("collapsed");
-    });
-
-    return () => window.cancelAnimationFrame(frame);
-  }, [sheetY]);
-
-  useEffect(() => {
-    if (!selectedCafe) {
-      wasOpenRef.current = false;
-      return;
-    }
-
-    if (wasOpenRef.current) return;
-
-    wasOpenRef.current = true;
+    if (!mode || isClosing) return;
     if (isSheetVisible && sheetState !== "closed") return;
 
     const frame = window.requestAnimationFrame(() => {
@@ -264,7 +270,7 @@ export default function WorkspacesSheet({
     });
 
     return () => window.cancelAnimationFrame(frame);
-  }, [isSheetVisible, selectedCafe, sheetState, sheetY]);
+  }, [isClosing, isSheetVisible, mode, sheetState, sheetY]);
 
   useEffect(() => {
     if (!isSheetVisible) return;
@@ -455,7 +461,7 @@ export default function WorkspacesSheet({
 
   return (
     <>
-      {selectedCafe && (
+      {mode === "cafe" && selectedCafe && (
         <motion.button
           type="button"
           aria-label="Close cafe details"
@@ -469,9 +475,13 @@ export default function WorkspacesSheet({
 
       <motion.section
         ref={sheetRef}
-        role={selectedCafe ? "dialog" : "region"}
-        aria-modal={selectedCafe ? true : undefined}
-        aria-label={selectedCafe ? `${selectedCafe.name} details` : "Nearby workspaces"}
+        role={mode === "cafe" ? "dialog" : "region"}
+        aria-modal={mode === "cafe" ? true : undefined}
+        aria-label={
+          mode === "cafe" && selectedCafe
+            ? `${selectedCafe.name} details`
+            : `${mode} workspaces`
+        }
         className={`hs-bottom-sheet fixed inset-x-0 bottom-0 z-50 flex h-[95dvh] flex-col overflow-hidden rounded-t-[var(--hs-radius-sheet)] md:hidden ${
           sheetState === "collapsed" ? "touch-none" : ""
         }`}
@@ -496,8 +506,20 @@ export default function WorkspacesSheet({
             isContentScrollable ? "overflow-y-auto touch-pan-y" : "overflow-y-hidden"
           }`}
         >
-          {selectedCafe ? (
+          {mode === "cafe" && selectedCafe ? (
             <CafeDetails cafe={selectedCafe} />
+          ) : mode === "saved" ? (
+            <EmptySheet
+              title="Saved"
+              message="Your saved seats will appear here."
+              icon={Bookmark}
+            />
+          ) : mode === "friends" ? (
+            <EmptySheet
+              title="Friends"
+              message="See where your friends like to work."
+              icon={UsersRound}
+            />
           ) : (
             <div className="px-5 pb-7 pt-1">
               <div className="mb-4">
@@ -516,7 +538,7 @@ export default function WorkspacesSheet({
                     cafe={cafe}
                     selected={false}
                     variant="sheet"
-                    onClick={() => setSelectedCafe(cafe)}
+                    onClick={() => onSelectCafe(cafe)}
                   />
                 ))}
               </div>

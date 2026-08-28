@@ -6,7 +6,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { Cafe } from "@/types/cafe";
 import { getStudyScoreColor } from "@/utils/studyScore";
 
-import { cafes } from "@/data/cafes";
+import { cafes as allCafes } from "@/data/cafes";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -95,9 +95,11 @@ function softenMapStyle(map: mapboxgl.Map) {
 }
 
 export default function Map({
+  cafes,
   selectedCafe,
   setSelectedCafe,
 }: {
+  cafes: Cafe[];
   selectedCafe: Cafe | null;
   setSelectedCafe: (cafe: Cafe) => void;
 }) {
@@ -119,7 +121,7 @@ export default function Map({
       if (map.current) softenMapStyle(map.current);
     });
 
-    cafes.forEach((cafe) => {
+    allCafes.forEach((cafe) => {
       const markerElement = document.createElement("div");
 
 const colour = getStudyScoreColor(cafe.studyScore).stroke;
@@ -153,7 +155,17 @@ markers.current[cafe.name] = marker;
     });
 
     return () => map.current?.remove();
-  }, []);
+  }, [setSelectedCafe]);
+
+  useEffect(() => {
+    const visibleCafeNames = new Set(cafes.map((cafe) => cafe.name));
+
+    for (const [cafeName, marker] of Object.entries(markers.current)) {
+      marker.getElement().style.display = visibleCafeNames.has(cafeName)
+        ? ""
+        : "none";
+    }
+  }, [cafes]);
 
   useEffect(() => {
   if (!selectedCafe || !map.current) return;

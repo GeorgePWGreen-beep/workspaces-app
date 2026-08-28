@@ -1,11 +1,11 @@
 "use client";
 
 import { PlugZap, Search, VolumeX, Wifi } from "lucide-react";
-import { cafes } from "@/data/cafes";
 import { Cafe } from "@/types/cafe";
 import CafeCard from "./CafeCard";
 
 export default function Sidebar({
+  cafes,
   selectedCafe,
   setSelectedCafe,
   search,
@@ -17,6 +17,7 @@ export default function Sidebar({
   plentySocketsOnly,
   onTogglePlentySockets,
 }: {
+  cafes: Cafe[];
   selectedCafe: Cafe | null;
   setSelectedCafe: (cafe: Cafe) => void;
   search: string;
@@ -28,17 +29,6 @@ export default function Sidebar({
   plentySocketsOnly: boolean;
   onTogglePlentySockets: () => void;
 }) {
-  const filteredCafes = cafes.filter((cafe) => {
-    const matchesSearch = cafe.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesWifi = !greatWifiOnly || cafe.wifi === "Great WiFi";
-    const matchesQuiet = !quietOnly || cafe.noise === "Quiet";
-    const matchesSockets = !plentySocketsOnly || cafe.sockets === "Plenty";
-
-    return matchesSearch && matchesWifi && matchesQuiet && matchesSockets;
-  });
-
   return (
     <div className="h-screen w-96 overflow-y-auto border-r border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)]">
       <div className="border-b border-[color:var(--hs-border)] p-4">
@@ -108,7 +98,7 @@ export default function Sidebar({
       </div>
 
       <div className="space-y-3 p-4">
-        {filteredCafes.map((cafe) => (
+        {cafes.map((cafe) => (
           <CafeCard
             key={cafe.name}
             cafe={cafe}
