@@ -94,6 +94,48 @@ function softenMapStyle(map: mapboxgl.Map) {
   }
 }
 
+function createMarkerElement(cafe: Cafe) {
+  const markerElement = document.createElement("div");
+  const markerButton = document.createElement("button");
+  const score = document.createElement("span");
+  const colour = getStudyScoreColor(cafe.studyScore).stroke;
+
+  markerElement.className = "hs-map-marker";
+  markerButton.type = "button";
+  markerButton.className = "hs-map-pin";
+  markerButton.setAttribute(
+    "aria-label",
+    `${cafe.name}, Study Score ${cafe.studyScore}`,
+  );
+  markerButton.setAttribute("aria-pressed", "false");
+  markerButton.style.setProperty("--hs-marker-colour", colour);
+  markerButton.innerHTML = `
+    <svg aria-hidden="true" viewBox="0 0 44 44" focusable="false">
+      <path
+        d="M22 1.3C12 1.3 4 8.6 4 18.1C4 27.1 14.4 33.7 22 38C29.6 33.7 40 27.1 40 18.1C40 8.6 32 1.3 22 1.3Z"
+        fill="#FCFCFA"
+        stroke="var(--hs-marker-colour)"
+        stroke-width="2.1"
+        stroke-linejoin="round"
+      />
+      <circle
+        cx="22"
+        cy="41"
+        r="2.3"
+        fill="var(--hs-marker-colour)"
+        stroke="rgba(255,255,255,0.96)"
+        stroke-width="1.2"
+      />
+    </svg>
+  `;
+  score.className = "hs-map-pin-score";
+  score.textContent = String(cafe.studyScore);
+  markerButton.append(score);
+  markerElement.append(markerButton);
+
+  return { markerElement, markerButton };
+}
+
 export default function Map({
   cafes,
   selectedCafe,
@@ -122,36 +164,19 @@ export default function Map({
     });
 
     allCafes.forEach((cafe) => {
-      const markerElement = document.createElement("div");
+      const { markerElement, markerButton } = createMarkerElement(cafe);
+      const marker = new mapboxgl.Marker({
+        element: markerElement,
+        anchor: "bottom",
+      })
+        .setLngLat(cafe.coords)
+        .addTo(map.current!);
 
-const colour = getStudyScoreColor(cafe.studyScore).stroke;
+      markerButton.addEventListener("click", () => {
+        setSelectedCafe(cafe);
+      });
 
-markerElement.innerHTML = `
-<div style="
-    background:${colour};
-    color:white;
-    font-weight:700;
-    padding:7px 10px;
-    border-radius:999px;
-    font-size:14px;
-    box-shadow:0 6px 18px rgba(0,0,0,.25);
-    border:2px solid white;
-    cursor:pointer;
-">
-    ${cafe.studyScore}
-</div>
-`;
-
-const marker = new mapboxgl.Marker(markerElement)
-  .setLngLat(cafe.coords)
-  .addTo(map.current!);
-
-markerElement.addEventListener("click", () => {
-  setSelectedCafe(cafe);
-});
-
-markers.current[cafe.name] = marker;
-        
+      markers.current[cafe.name] = marker;
     });
 
     return () => map.current?.remove();
@@ -168,20 +193,25 @@ markers.current[cafe.name] = marker;
   }, [cafes]);
 
   useEffect(() => {
-  if (!selectedCafe || !map.current) return;
+    for (const [cafeName, marker] of Object.entries(markers.current)) {
+      const isSelected = cafeName === selectedCafe?.name;
+      const markerElement = marker.getElement();
 
-  map.current.flyTo({
-    center: selectedCafe.coords,
-    zoom: 16,
-    duration: 2000,
-  });
+      markerElement.classList.toggle("is-selected", isSelected);
+      markerElement.style.zIndex = isSelected ? "2" : "1";
+      markerElement
+        .querySelector("button")
+        ?.setAttribute("aria-pressed", String(isSelected));
+    }
 
-  const marker = markers.current[selectedCafe.name];
+    if (!selectedCafe || !map.current) return;
 
-  if (marker) {
-  // Marker exists - nothing else needed for now
-}
-}, [selectedCafe]);
+    map.current.flyTo({
+      center: selectedCafe.coords,
+      zoom: 16,
+      duration: 2000,
+    });
+  }, [selectedCafe]);
 
   return <div ref={mapContainer} className="w-full h-full" />;
 }

@@ -110,6 +110,79 @@ body {
   box-shadow: var(--hs-shadow-floating);
 }
 
+.hs-map-marker {
+  height: 44px;
+  width: 44px;
+}
+
+.hs-map-pin {
+  position: relative;
+  display: block;
+  height: 44px;
+  width: 44px;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #171a18;
+  filter: drop-shadow(0 2px 5px rgba(20, 25, 21, 0.12));
+  transform-origin: 50% 100%;
+  transition:
+    transform 190ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 190ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hs-map-pin svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+  overflow: visible;
+}
+
+.hs-map-pin path {
+  transition:
+    stroke 190ms ease,
+    stroke-width 190ms ease;
+}
+
+.hs-map-pin-score {
+  position: absolute;
+  left: 50%;
+  top: 16.5px;
+  transform: translate(-50%, -50%);
+  font-family: var(--hs-font-system);
+  color: #171a18;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+
+.hs-map-marker.is-selected .hs-map-pin {
+  filter: drop-shadow(0 4px 8px rgba(20, 25, 21, 0.16));
+  transform: scale(1.13);
+}
+
+.hs-map-marker.is-selected .hs-map-pin path {
+  stroke-width: 2.6;
+}
+
+.hs-map-pin:active {
+  transform: scale(0.98);
+}
+
+.hs-map-marker.is-selected .hs-map-pin:active {
+  transform: scale(1.1);
+}
+
+.hs-map-pin:focus-visible {
+  outline: 3px solid rgba(47, 113, 56, 0.42);
+  outline-offset: 3px;
+  border-radius: 50% 50% 45% 45%;
+}
+
 .hs-cafe-list-card {
   background: var(--hs-card);
   border: 1px solid var(--hs-card-border);
