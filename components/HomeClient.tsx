@@ -41,8 +41,8 @@ export default function HomeClient({ cafes }: { cafes: Cafe[] }) {
   }, []);
 
   return (
-    <div className="relative flex h-[100dvh] overflow-hidden">
-      <div className="hidden md:block">
+    <div className="relative flex h-dvh w-full overflow-hidden">
+      <div className="hidden h-full md:block">
         <Sidebar
           cafes={filteredCafes}
           selectedCafe={selectedCafe}
@@ -58,7 +58,7 @@ export default function HomeClient({ cafes }: { cafes: Cafe[] }) {
         />
       </div>
 
-      <div className="flex-1">
+      <div className="h-full min-w-0 flex-1">
         <Map
           allCafes={cafes}
           cafes={filteredCafes}

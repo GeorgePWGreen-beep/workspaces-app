@@ -30,7 +30,7 @@ export default function Sidebar({
   onTogglePlentySockets: () => void;
 }) {
   return (
-    <div className="h-screen w-96 overflow-y-auto border-r border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)]">
+    <div className="h-full w-96 overflow-y-auto border-r border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)]">
       <div className="border-b border-[color:var(--hs-border)] p-4">
         <h1 className="text-[32px] font-extrabold leading-none tracking-[-0.06em] text-[color:var(--hs-ink)]">
           HOT SEATS

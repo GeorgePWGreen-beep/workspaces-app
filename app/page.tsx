@@ -13,7 +13,7 @@ export default async function Home() {
 
   if (!cafes) {
     return (
-      <main className="grid min-h-[100dvh] place-items-center bg-[color:var(--hs-bg)] px-6 text-center">
+      <main className="grid min-h-dvh w-full place-items-center bg-[color:var(--hs-bg)] px-6 text-center">
         <div>
           <h1 className="text-2xl font-bold text-[color:var(--hs-text)]">
             Couldn&apos;t load nearby seats.
