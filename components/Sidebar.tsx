@@ -1,68 +1,68 @@
 "use client";
 
 import { PlugZap, Search, VolumeX, Wifi } from "lucide-react";
-import { useState } from "react";
-import { cafes } from "@/data/cafes";
 import { Cafe } from "@/types/cafe";
 import CafeCard from "./CafeCard";
 
 export default function Sidebar({
+  cafes,
   selectedCafe,
   setSelectedCafe,
+  search,
+  onSearchChange,
+  greatWifiOnly,
+  onToggleGreatWifi,
+  quietOnly,
+  onToggleQuiet,
+  plentySocketsOnly,
+  onTogglePlentySockets,
 }: {
+  cafes: Cafe[];
   selectedCafe: Cafe | null;
   setSelectedCafe: (cafe: Cafe) => void;
+  search: string;
+  onSearchChange: (value: string) => void;
+  greatWifiOnly: boolean;
+  onToggleGreatWifi: () => void;
+  quietOnly: boolean;
+  onToggleQuiet: () => void;
+  plentySocketsOnly: boolean;
+  onTogglePlentySockets: () => void;
 }) {
-  const [search, setSearch] = useState("");
-  const [greatWifiOnly, setGreatWifiOnly] = useState(false);
-  const [quietOnly, setQuietOnly] = useState(false);
-  const [plentySocketsOnly, setPlentySocketsOnly] = useState(false);
-
-  const filteredCafes = cafes.filter((cafe) => {
-    const matchesSearch = cafe.name
-      .toLowerCase()
-      .includes(search.toLowerCase());
-    const matchesWifi = !greatWifiOnly || cafe.wifi === "Great WiFi";
-    const matchesQuiet = !quietOnly || cafe.noise === "Quiet";
-    const matchesSockets = !plentySocketsOnly || cafe.sockets === "Plenty";
-
-    return matchesSearch && matchesWifi && matchesQuiet && matchesSockets;
-  });
-
   return (
-    <div className="h-screen w-96 overflow-y-auto border-r border-slate-200 bg-slate-50">
-      <div className="border-b border-slate-200 p-4">
-        <h1 className="text-3xl font-bold tracking-tight text-[#111827]">
-          Workspaces
+    <div className="h-screen w-96 overflow-y-auto border-r border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)]">
+      <div className="border-b border-[color:var(--hs-border)] p-4">
+        <h1 className="text-[32px] font-extrabold leading-none tracking-[-0.06em] text-[color:var(--hs-ink)]">
+          HOT SEATS
         </h1>
 
-        <p className="mb-5 mt-1 text-[#4B5563]">
+        <p className="mb-5 mt-2 text-[color:var(--hs-muted)]">
           Find your perfect study spot.
         </p>
 
         <div className="relative">
           <Search
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500"
+            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--hs-muted)]"
             strokeWidth={2}
           />
           <input
             type="text"
             placeholder="Search cafes..."
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-[#111827] shadow-sm outline-none placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500"
+            onChange={(event) => onSearchChange(event.target.value)}
+            className="w-full rounded-xl border border-[color:var(--hs-border)] bg-white py-3 pl-10 pr-4 text-[color:var(--hs-ink)] shadow-sm outline-none placeholder:text-[color:var(--hs-muted)] focus:border-[color:var(--hs-sage)] focus:ring-2 focus:ring-[color:var(--hs-sage-soft)]"
           />
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => setGreatWifiOnly(!greatWifiOnly)}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
+            onClick={onToggleGreatWifi}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-sage)] focus-visible:ring-offset-2 ${
               greatWifiOnly
-                ? "bg-blue-600 text-white shadow-md"
-                : "border border-slate-200 bg-white text-[#4B5563] hover:bg-slate-100"
+                ? "bg-[color:var(--hs-sage-dark)] text-white shadow-sm"
+                : "border border-[color:var(--hs-border)] bg-white text-[color:var(--hs-muted)] hover:border-[color:var(--hs-sage)] hover:bg-[color:var(--hs-sage-soft)]"
             }`}
           >
             <Wifi aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
@@ -71,11 +71,11 @@ export default function Sidebar({
 
           <button
             type="button"
-            onClick={() => setQuietOnly(!quietOnly)}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
+            onClick={onToggleQuiet}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-sage)] focus-visible:ring-offset-2 ${
               quietOnly
-                ? "bg-blue-600 text-white shadow-md"
-                : "border border-slate-200 bg-white text-[#4B5563] hover:bg-slate-100"
+                ? "bg-[color:var(--hs-sage-dark)] text-white shadow-sm"
+                : "border border-[color:var(--hs-border)] bg-white text-[color:var(--hs-muted)] hover:border-[color:var(--hs-sage)] hover:bg-[color:var(--hs-sage-soft)]"
             }`}
           >
             <VolumeX aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
@@ -84,11 +84,11 @@ export default function Sidebar({
 
           <button
             type="button"
-            onClick={() => setPlentySocketsOnly(!plentySocketsOnly)}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 ${
+            onClick={onTogglePlentySockets}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-sage)] focus-visible:ring-offset-2 ${
               plentySocketsOnly
-                ? "bg-blue-600 text-white shadow-md"
-                : "border border-slate-200 bg-white text-[#4B5563] hover:bg-slate-100"
+                ? "bg-[color:var(--hs-sage-dark)] text-white shadow-sm"
+                : "border border-[color:var(--hs-border)] bg-white text-[color:var(--hs-muted)] hover:border-[color:var(--hs-sage)] hover:bg-[color:var(--hs-sage-soft)]"
             }`}
           >
             <PlugZap aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
@@ -98,7 +98,7 @@ export default function Sidebar({
       </div>
 
       <div className="space-y-3 p-4">
-        {filteredCafes.map((cafe) => (
+        {cafes.map((cafe) => (
           <CafeCard
             key={cafe.name}
             cafe={cafe}

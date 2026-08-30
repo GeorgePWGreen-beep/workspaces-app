@@ -18,8 +18,8 @@ interface StudyScoreProps {
 const VIEWBOX_SIZE = 120;
 const CENTER = VIEWBOX_SIZE / 2;
 const RADIUS = 50;
-const GUIDE_STROKE_WIDTH = 3.5;
-const PROGRESS_STROKE_WIDTH = 8.5;
+const GUIDE_STROKE_WIDTH = 2.5;
+const PROGRESS_STROKE_WIDTH = 5;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 const START_DELAY_MS = 50;
 const DRAW_DURATION_SECONDS = 0.8;
@@ -107,8 +107,8 @@ export default function StudyScore({ score, size = 128 }: StudyScoreProps) {
           cx={CENTER}
           cy={CENTER}
           r={RADIUS}
-          fill="none"
-          stroke="#EFEAE2"
+          fill="#FCFCFA"
+          stroke="#E5E8E3"
           strokeWidth={GUIDE_STROKE_WIDTH}
         />
 
@@ -129,13 +129,13 @@ export default function StudyScore({ score, size = 128 }: StudyScoreProps) {
 
       <div className="relative flex flex-col items-center pt-[5px] text-center">
         <span
-          className="font-bold leading-none tracking-[-0.06em] tabular-nums"
-          style={{ color: color.text, fontSize: Math.round(diameter * 0.32) }}
+          className="font-bold leading-none tracking-[-0.055em] text-[#171A18] tabular-nums"
+          style={{ fontSize: Math.round(diameter * 0.32) }}
         >
           {displayedScore}
         </span>
         <span
-          className="mt-1 font-medium leading-none text-[#817B73]"
+          className="mt-1 font-medium leading-none text-[color:var(--hs-text-secondary)]"
           style={{ fontSize: Math.max(11, Math.round(diameter * 0.1)) }}
         >
           Study Score

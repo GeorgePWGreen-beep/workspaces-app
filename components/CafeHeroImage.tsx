@@ -33,7 +33,7 @@ function CafeHeroImageContent({ src, cafeName }: CafeHeroImageProps) {
   };
 
   return (
-    <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#ECE8E2]">
+    <div className="relative aspect-[16/9] w-full overflow-hidden bg-[color:var(--hs-canvas)]">
       {imageSource && (
         <Image
           key={imageSource}

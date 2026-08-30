@@ -1,44 +1,36 @@
-"use client";
+import { connection } from "next/server";
+import Link from "next/link";
+import HomeClient from "@/components/HomeClient";
+import { getCafes } from "@/lib/data/cafes";
 
-import { useState } from "react";
-import Map from "@/components/Map";
-import Sidebar from "@/components/Sidebar";
-import WorkspacesSheet from "@/components/WorkspacesSheet";
-import FloatingSearch from "@/components/FloatingSearch";
+export default async function Home() {
+  await connection();
 
-import { Cafe } from "@/types/cafe";
+  const cafes = await getCafes().catch((error: unknown) => {
+    console.error("Unable to load cafe data for the home page:", error);
+    return null;
+  });
 
-export default function Home() {
-  const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
+  if (!cafes) {
+    return (
+      <main className="grid min-h-[100dvh] place-items-center bg-[color:var(--hs-bg)] px-6 text-center">
+        <div>
+          <h1 className="text-2xl font-bold text-[color:var(--hs-text)]">
+            Couldn&apos;t load nearby seats.
+          </h1>
+          <p className="mt-2 text-[color:var(--hs-text-secondary)]">
+            Check your connection and try again.
+          </p>
+          <Link
+            href="/"
+            className="mt-5 inline-flex h-11 items-center rounded-full bg-[color:var(--hs-green)] px-5 font-semibold text-white"
+          >
+            Try again
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
-  return (
-    <div className="flex h-screen relative">
-
-      {/* Desktop Sidebar */}
-
-      <div className="hidden md:block">
-        <Sidebar
-          selectedCafe={selectedCafe}
-          setSelectedCafe={setSelectedCafe}
-        />
-      </div>
-
-      {/* Map */}
-
-      <div className="flex-1">
-        <Map
-          selectedCafe={selectedCafe}
-          setSelectedCafe={setSelectedCafe}
-        />
-      </div>
-
-      <FloatingSearch />
-
-      <WorkspacesSheet
-    selectedCafe={selectedCafe}
-    setSelectedCafe={setSelectedCafe}
-/>
-
-    </div>
-  );
+  return <HomeClient cafes={cafes} />;
 }
