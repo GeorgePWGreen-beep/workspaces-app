@@ -192,18 +192,12 @@ export default function CafeCard({
       </div>
 
       <div className="flex shrink-0 items-center gap-px">
-        <div className="flex flex-col items-center">
-          <div
-            className="grid h-16 w-16 place-items-center rounded-[17px] text-[32px] font-extrabold leading-none tracking-[-0.055em] text-white shadow-[0_5px_12px_rgba(20,25,21,0.13)] max-[374px]:h-[60px] max-[374px]:w-[60px] max-[374px]:text-[29px]"
-            style={{
-              background: `linear-gradient(145deg, ${scoreColor.stroke}, ${scoreColor.text})`,
-            }}
-          >
-            {cafe.studyScore}
-          </div>
-          <span className="mt-1 whitespace-nowrap text-[9px] font-semibold tracking-[0.015em] text-[color:var(--hs-text-secondary)] max-[374px]:text-[8px]">
-            STUDY SCORE
-          </span>
+        <div
+          className="grid h-14 w-14 place-items-center rounded-[14px] border-2 bg-[#FCFCFA] text-[29px] font-bold leading-none tracking-[-0.045em] text-[#171A18] shadow-[0_2px_6px_rgba(20,25,21,0.06)] max-[374px]:h-[52px] max-[374px]:w-[52px] max-[374px]:rounded-[13px] max-[374px]:text-[27px]"
+          style={{ borderColor: scoreColor.stroke }}
+        >
+          <span className="sr-only">Study Score </span>
+          <span aria-hidden="true">{cafe.studyScore}</span>
         </div>
         <ChevronRight
           aria-hidden="true"

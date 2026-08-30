@@ -6,8 +6,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { Cafe } from "@/types/cafe";
 import { getStudyScoreColor } from "@/utils/studyScore";
 
-import { cafes as allCafes } from "@/data/cafes";
-
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
 const quietMapPalette = {
@@ -137,10 +135,12 @@ function createMarkerElement(cafe: Cafe) {
 }
 
 export default function Map({
+  allCafes,
   cafes,
   selectedCafe,
   setSelectedCafe,
 }: {
+  allCafes: Cafe[];
   cafes: Cafe[];
   selectedCafe: Cafe | null;
   setSelectedCafe: (cafe: Cafe) => void;
@@ -180,7 +180,7 @@ export default function Map({
     });
 
     return () => map.current?.remove();
-  }, [setSelectedCafe]);
+  }, [allCafes, setSelectedCafe]);
 
   useEffect(() => {
     const visibleCafeNames = new Set(cafes.map((cafe) => cafe.name));
