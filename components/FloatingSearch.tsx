@@ -57,7 +57,7 @@ export default function FloatingSearch({
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-5 pb-3 pt-[max(20px,calc(env(safe-area-inset-top)+12px))] md:hidden">
       <div className="pointer-events-auto flex items-center justify-between gap-4">
-        <h1 className="whitespace-nowrap text-[36px] font-extrabold leading-[0.98] tracking-[-0.04em] text-[color:var(--hs-text)]">
+        <h1 className="font-brand whitespace-nowrap text-[38px] font-black leading-[0.98] tracking-[-0.045em] text-[color:var(--hs-ink)]">
           HOT SEATS
         </h1>
 

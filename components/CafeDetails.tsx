@@ -78,7 +78,7 @@ function ActionButton({
       type="button"
       className={`flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-3 text-sm font-semibold transition-[transform,background-color,border-color,box-shadow] duration-150 active:scale-[0.98] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-sage)] focus-visible:ring-offset-2 ${
         isPrimary
-          ? "border-[color:var(--hs-green)] bg-[color:var(--hs-green-soft)] text-[color:var(--hs-green-deep)] shadow-[0_3px_12px_rgba(20,25,21,0.04)]"
+          ? "border-[color:var(--hs-sage-dark)] bg-[color:var(--hs-sage-dark)] text-white shadow-[0_3px_12px_rgba(20,25,21,0.08)]"
           : "border-[color:var(--hs-border)] bg-[#FCFCFA] text-[color:var(--hs-text)] shadow-[0_3px_12px_rgba(20,25,21,0.04)] hover:border-[color:var(--hs-sage)] hover:bg-[color:var(--hs-sage-soft)]"
       }`}
     >
@@ -173,7 +173,7 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
             className="h-4 w-4 fill-amber-400 text-amber-500"
             strokeWidth={1.9}
           />
-          <span className="font-semibold text-[color:var(--hs-text)]">{cafe.rating}</span>
+          <span className="font-semibold">{cafe.rating}</span>
           <span aria-hidden="true" className="h-4 border-l border-[color:var(--hs-border)]" />
           <Wallet aria-hidden="true" className="h-4 w-4" strokeWidth={1.9} />
           <span>{cafe.price}</span>
