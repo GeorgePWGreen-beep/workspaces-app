@@ -4,9 +4,19 @@ import { cafes as developmentCafes } from "@/data/cafes";
 import { createClient } from "@/lib/supabase/server";
 import type { Cafe } from "@/types/cafe";
 import type { CafeRow } from "@/types/database";
+import { getLegacyCity, isCity } from "@/lib/cities";
+import { isWeeklyOpeningHours } from "@/utils/openingHours";
 
 export function mapCafeRowToCafe(row: CafeRow): Cafe {
+  const city = isCity(row.city) ? row.city : getLegacyCity(row.slug, row.latitude, row.longitude);
+  if (!city) throw new Error(`Cafe ${row.slug} needs a verified city. Apply the city migration after reviewing this record.`);
   return {
+    city,
+    // Missing before the independence migration, or unclassified, stays unknown.
+    isIndependent: typeof row.is_independent === "boolean" ? row.is_independent : null,
+    seatCount: row.seat_count ?? null,
+    lastVerifiedAt: row.last_verified_at ?? null,
+    weeklyOpeningHours: isWeeklyOpeningHours(row.weekly_opening_hours) ? row.weekly_opening_hours : null,
     name: row.name,
     studyScore: row.study_score,
     coords: [row.longitude, row.latitude],
@@ -16,7 +26,6 @@ export function mapCafeRowToCafe(row: CafeRow): Cafe {
     busyness: row.busyness,
     rating: row.rating,
     price: row.price,
-    walkTime: row.walk_time,
     image: row.image_url,
     description: row.description,
     coffee: row.coffee,

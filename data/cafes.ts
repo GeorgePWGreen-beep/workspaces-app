@@ -3,7 +3,33 @@ import { CAFE_IMAGE_PLACEHOLDER } from "@/utils/cafeImages";
 
 export const cafes: Cafe[] = [
   {
+    city: "Exeter",
+    isIndependent: true,
+    seatCount: null,
+    lastVerifiedAt: null,
+    weeklyOpeningHours: null,
+    name: "Arrietty",
+    studyScore: 85,
+    coords: [-3.527072, 50.726516],
+    wifi: "Great WiFi",
+    noise: "Quiet",
+    sockets: "Plenty",
+    busyness: "Moderate",
+    rating: 4.7,
+    price: "££",
+    image: CAFE_IMAGE_PLACEHOLDER,
+    description: "Bright, relaxed speciality coffee shop well suited to studying and laptop work.",
+    coffee: "Excellent",
+    seating: "Comfortable",
+    openingHours: "08:30 - 15:00",
+  },
+  {
+    city: "Cambridge",
+    seatCount: null,
+    lastVerifiedAt: null,
+    weeklyOpeningHours: null,
     name: "Bould Brothers Coffee",
+    isIndependent: true,
     studyScore: 50,
     coords: [0.1195, 52.2053],
 
@@ -14,7 +40,6 @@ export const cafes: Cafe[] = [
 
     rating: 4.8,
     price: "££",
-    walkTime: 5,
 
     image: CAFE_IMAGE_PLACEHOLDER,
 
@@ -28,7 +53,12 @@ export const cafes: Cafe[] = [
   },
 
   {
+    city: "Cambridge",
+    seatCount: null,
+    lastVerifiedAt: null,
+    weeklyOpeningHours: null,
     name: "Hot Numbers",
+    isIndependent: true,
     studyScore: 90,
     coords: [0.1322, 52.2007],
 
@@ -39,7 +69,6 @@ export const cafes: Cafe[] = [
 
     rating: 4.7,
     price: "££",
-    walkTime: 8,
 
     image: "/cafes/hot-numbers.jpg",
 
@@ -53,7 +82,12 @@ export const cafes: Cafe[] = [
   },
 
   {
+    city: "Cambridge",
+    seatCount: null,
+    lastVerifiedAt: null,
+    weeklyOpeningHours: null,
     name: "Espresso Library",
+    isIndependent: null,
     studyScore: 80,
     coords: [0.1258, 52.2026],
 
@@ -64,7 +98,6 @@ export const cafes: Cafe[] = [
 
     rating: 4.8,
     price: "££",
-    walkTime: 6,
 
     image: CAFE_IMAGE_PLACEHOLDER,
 
@@ -78,7 +111,12 @@ export const cafes: Cafe[] = [
   },
 
   {
+    city: "Cambridge",
+    seatCount: null,
+    lastVerifiedAt: null,
+    weeklyOpeningHours: null,
     name: "Urban Larder",
+    isIndependent: null,
     studyScore: 70,
     coords: [0.1164, 52.2084],
 
@@ -89,7 +127,6 @@ export const cafes: Cafe[] = [
 
     rating: 4.6,
     price: "££",
-    walkTime: 9,
 
     image: CAFE_IMAGE_PLACEHOLDER,
 
@@ -103,7 +140,12 @@ export const cafes: Cafe[] = [
   },
 
   {
+    city: "Cambridge",
+    seatCount: null,
+    lastVerifiedAt: null,
+    weeklyOpeningHours: null,
     name: "Aromi",
+    isIndependent: true,
     studyScore: 75,
     coords: [0.1227, 52.2058],
 
@@ -114,7 +156,6 @@ export const cafes: Cafe[] = [
 
     rating: 4.8,
     price: "££",
-    walkTime: 4,
 
     image: CAFE_IMAGE_PLACEHOLDER,
 
@@ -128,7 +169,12 @@ export const cafes: Cafe[] = [
   },
 
   {
+    city: "Cambridge",
+    seatCount: null,
+    lastVerifiedAt: null,
+    weeklyOpeningHours: null,
     name: "Fitzbillies",
+    isIndependent: true,
     studyScore: 40,
     coords: [0.1242, 52.2044],
 
@@ -139,7 +185,6 @@ export const cafes: Cafe[] = [
 
     rating: 4.6,
     price: "£££",
-    walkTime: 5,
 
     image: CAFE_IMAGE_PLACEHOLDER,
 

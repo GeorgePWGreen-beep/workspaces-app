@@ -120,6 +120,11 @@ body {
   width: 44px;
 }
 
+.hs-map-marker.is-closed {
+  opacity: 0.48;
+  filter: grayscale(1);
+}
+
 .hs-map-pin {
   position: relative;
   display: block;

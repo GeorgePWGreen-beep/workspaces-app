@@ -1,4 +1,12 @@
+import type { City } from "../lib/cities";
+import type { WeeklyOpeningHours } from "./openingHours";
+
 export type Cafe = {
+  city: City;
+  isIndependent: boolean | null;
+  seatCount: number | null;
+  lastVerifiedAt: string | null;
+  weeklyOpeningHours: WeeklyOpeningHours | null;
   name: string;
   studyScore: number;
   coords: [number, number];
@@ -10,7 +18,6 @@ export type Cafe = {
 
   rating: number;
   price: "£" | "££" | "£££";
-  walkTime: number;
 
   image: string;
 
@@ -20,5 +27,5 @@ export type Cafe = {
 
   seating: "Comfortable" | "Average" | "Basic";
 
-  openingHours: string;
+  openingHours: string | null;
 };

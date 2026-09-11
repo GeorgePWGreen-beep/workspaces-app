@@ -5,6 +5,9 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Cafe } from "@/types/cafe";
 import { getStudyScoreColor } from "@/utils/studyScore";
+import { CITY_CONFIG, type City } from "@/lib/cities";
+import { useCafeTime } from "./CafeTimeProvider";
+import { getCafeOpeningState } from "@/utils/filters";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -135,11 +138,15 @@ function createMarkerElement(cafe: Cafe) {
 }
 
 export default function Map({
+  city,
+  onReady,
   allCafes,
   cafes,
   selectedCafe,
   setSelectedCafe,
 }: {
+  city: City;
+  onReady: () => void;
   allCafes: Cafe[];
   cafes: Cafe[];
   selectedCafe: Cafe | null;
@@ -148,6 +155,7 @@ export default function Map({
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<Record<string, mapboxgl.Marker>>({});
+  const now = useCafeTime();
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -155,9 +163,23 @@ export default function Map({
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/streets-v11",
-      center: [0.1218, 52.2053],
+      center: allCafes[0]?.coords ?? CITY_CONFIG[city].center,
       zoom: 14,
     });
+
+    if (allCafes.length > 1) {
+      const bounds = new mapboxgl.LngLatBounds();
+      allCafes.forEach((cafe) => bounds.extend(cafe.coords));
+      const mobile = window.matchMedia("(max-width: 767px)").matches;
+      const height = mapContainer.current.clientHeight;
+      map.current.fitBounds(bounds, {
+        padding: mobile
+          ? { top: Math.min(300, height * 0.38), bottom: Math.round(height * 0.47), left: 40, right: 40 }
+          : 70,
+        maxZoom: 15, duration: 0,
+      });
+    }
+    map.current.once("load", onReady);
 
     map.current.once("style.load", () => {
       if (map.current) softenMapStyle(map.current);
@@ -179,8 +201,25 @@ export default function Map({
       markers.current[cafe.name] = marker;
     });
 
-    return () => map.current?.remove();
-  }, [allCafes, setSelectedCafe]);
+    const resizeObserver = new ResizeObserver(() => map.current?.resize());
+    resizeObserver.observe(mapContainer.current);
+    return () => {
+      resizeObserver.disconnect();
+      map.current?.remove();
+      map.current = null;
+      markers.current = {};
+    };
+  }, [allCafes, city, onReady, setSelectedCafe]);
+
+  useEffect(() => {
+    for (const cafe of allCafes) {
+      const element = markers.current[cafe.name]?.getElement();
+      if (!element) continue;
+      const closed = getCafeOpeningState(cafe, now) === "closed";
+      element.classList.toggle("is-closed", closed);
+      element.querySelector("button")?.setAttribute("aria-label", `${cafe.name}, Study Score ${cafe.studyScore}${closed ? ", closed" : ""}`);
+    }
+  }, [allCafes, now]);
 
   useEffect(() => {
     const visibleCafeNames = new Set(cafes.map((cafe) => cafe.name));

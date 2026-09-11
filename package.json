@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:data": "tsc --target ES2022 --module commonjs --skipLibCheck --outDir .next/cafe-data-tests types/openingHours.ts utils/openingHours.ts utils/walking.ts lib/cities.ts && node --test tests/cafe-data.test.cjs",
+    "test:filters": "tsc --target ES2022 --module commonjs --skipLibCheck --strict --outDir .next/filter-tests types/filters.ts utils/filters.ts && node --test tests/filters.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",
