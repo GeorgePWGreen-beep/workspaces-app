@@ -4,7 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bookmark,
   Navigation,
-  PersonStanding,
+  Armchair,
   PlugZap,
   Share2,
   Star,
@@ -18,6 +18,10 @@ import { Cafe } from "@/types/cafe";
 import CafeHeroImage from "./CafeHeroImage";
 import FeatureChip, { type FeatureTone } from "./FeatureChip";
 import StudyScore from "./StudyScore";
+import OpeningHours from "./OpeningHours";
+import WalkTime from "./WalkTime";
+import { CITY_CONFIG } from "@/lib/cities";
+import { formatVerifiedDate } from "@/utils/openingHours";
 
 interface CafeDetailsProps {
   cafe: Cafe;
@@ -78,7 +82,7 @@ function ActionButton({
       type="button"
       className={`flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-3 text-sm font-semibold transition-[transform,background-color,border-color,box-shadow] duration-150 active:scale-[0.98] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-sage)] focus-visible:ring-offset-2 ${
         isPrimary
-          ? "border-[color:var(--hs-green)] bg-[color:var(--hs-green-soft)] text-[color:var(--hs-green-deep)] shadow-[0_3px_12px_rgba(20,25,21,0.04)]"
+          ? "border-[color:var(--hs-sage-dark)] bg-[color:var(--hs-sage-dark)] text-white shadow-[0_3px_12px_rgba(20,25,21,0.08)]"
           : "border-[color:var(--hs-border)] bg-[#FCFCFA] text-[color:var(--hs-text)] shadow-[0_3px_12px_rgba(20,25,21,0.04)] hover:border-[color:var(--hs-sage)] hover:bg-[color:var(--hs-sage-soft)]"
       }`}
     >
@@ -93,6 +97,7 @@ function ActionButton({
 }
 
 export default function CafeDetails({ cafe }: CafeDetailsProps) {
+  const verifiedDate = formatVerifiedDate(cafe.lastVerifiedAt, CITY_CONFIG[cafe.city].timeZone);
   const features: {
     id: string;
     icon: LucideIcon;
@@ -138,9 +143,9 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
     {
       id: "busyness",
       icon: Users,
-      title: "Busyness",
+      title: "Business",
       value: cafe.busyness,
-      chipLabel: `${cafe.busyness} busyness`,
+      chipLabel: `${cafe.busyness} business`,
       tone:
         cafe.busyness === "Quiet"
           ? "good"
@@ -167,20 +172,20 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
           </div>
         </div>
 
-        <div className="mt-3 flex items-center gap-2 text-[14px] font-medium text-[color:var(--hs-text-secondary)]">
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-[14px] font-medium text-[color:var(--hs-text-secondary)]">
           <Star
             aria-hidden="true"
             className="h-4 w-4 fill-amber-400 text-amber-500"
             strokeWidth={1.9}
           />
-          <span className="font-semibold text-[color:var(--hs-text)]">{cafe.rating}</span>
+          <span className="font-semibold">{cafe.rating}</span>
           <span aria-hidden="true" className="h-4 border-l border-[color:var(--hs-border)]" />
           <Wallet aria-hidden="true" className="h-4 w-4" strokeWidth={1.9} />
           <span>{cafe.price}</span>
-          <span aria-hidden="true" className="h-4 border-l border-[color:var(--hs-border)]" />
-          <PersonStanding aria-hidden="true" className="h-4 w-4" strokeWidth={1.9} />
-          <span>{cafe.walkTime} min walk</span>
+          <WalkTime coords={cafe.coords} />
         </div>
+
+        <OpeningHours cafe={cafe} />
 
         <div className="mt-4 flex flex-wrap gap-2">
           {features.map((feature) => (
@@ -192,6 +197,11 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
             />
           ))}
         </div>
+
+        {cafe.seatCount !== null && <p className="mt-3 flex items-center gap-2 text-sm font-medium text-[color:var(--hs-text-secondary)]">
+          <Armchair aria-hidden="true" className="h-4 w-4" strokeWidth={1.9} />
+          Approx. {cafe.seatCount} seats
+        </p>}
 
         <div className="my-6 border-t border-[color:var(--hs-border)]" />
 
@@ -213,6 +223,9 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
               <StudyFeatureCard key={feature.id} {...feature} />
             ))}
           </div>
+          <p className="mt-4 text-sm leading-6 text-[color:var(--hs-text-secondary)]">
+            {cafe.coffee} coffee <span aria-hidden="true">·</span> {cafe.seating} seating
+          </p>
         </section>
 
         <div className="my-6 border-t border-[color:var(--hs-border)]" />
@@ -222,6 +235,7 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
           <ActionButton icon={Share2} label="Share" />
           <ActionButton icon={Navigation} label="Directions" variant="primary" />
         </div>
+        {verifiedDate && <p className="mt-5 text-center text-[12px] leading-5 text-[color:var(--hs-text-tertiary)]">Last verified <time dateTime={cafe.lastVerifiedAt!}>{verifiedDate}</time></p>}
       </div>
     </div>
   );

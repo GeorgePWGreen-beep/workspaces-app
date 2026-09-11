@@ -1,34 +1,32 @@
 "use client";
 
-import { PlugZap, Search, VolumeX, Wifi } from "lucide-react";
+import { Search } from "lucide-react";
 import { Cafe } from "@/types/cafe";
 import CafeCard from "./CafeCard";
+import QuickFilters, { type QuickFiltersProps } from "./QuickFilters";
+import type { City } from "@/lib/cities";
+import { WalkingLocationAction } from "./LocationProvider";
 
 export default function Sidebar({
+  city,
+  onChangeCity,
   cafes,
   selectedCafe,
   setSelectedCafe,
   search,
   onSearchChange,
-  greatWifiOnly,
-  onToggleGreatWifi,
-  quietOnly,
-  onToggleQuiet,
-  plentySocketsOnly,
-  onTogglePlentySockets,
+  filters,
+  onChange,
+  onOpenFilters,
 }: {
+  city: City;
+  onChangeCity: () => void;
   cafes: Cafe[];
   selectedCafe: Cafe | null;
   setSelectedCafe: (cafe: Cafe) => void;
   search: string;
   onSearchChange: (value: string) => void;
-  greatWifiOnly: boolean;
-  onToggleGreatWifi: () => void;
-  quietOnly: boolean;
-  onToggleQuiet: () => void;
-  plentySocketsOnly: boolean;
-  onTogglePlentySockets: () => void;
-}) {
+} & QuickFiltersProps) {
   return (
     <div className="h-full w-96 overflow-y-auto border-r border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)]">
       <div className="border-b border-[color:var(--hs-border)] p-4">
@@ -37,7 +35,7 @@ export default function Sidebar({
         </h1>
 
         <p className="mb-5 mt-2 text-[color:var(--hs-muted)]">
-          Find your perfect study spot.
+          Study spots in {city}. <button type="button" onClick={onChangeCity} className="min-h-11 text-sm font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Change city</button>
         </p>
 
         <div className="relative">
@@ -55,49 +53,14 @@ export default function Sidebar({
           />
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={onToggleGreatWifi}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-sage)] focus-visible:ring-offset-2 ${
-              greatWifiOnly
-                ? "bg-[color:var(--hs-sage-dark)] text-white shadow-sm"
-                : "border border-[color:var(--hs-border)] bg-white text-[color:var(--hs-muted)] hover:border-[color:var(--hs-sage)] hover:bg-[color:var(--hs-sage-soft)]"
-            }`}
-          >
-            <Wifi aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-            Great WiFi
-          </button>
-
-          <button
-            type="button"
-            onClick={onToggleQuiet}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-sage)] focus-visible:ring-offset-2 ${
-              quietOnly
-                ? "bg-[color:var(--hs-sage-dark)] text-white shadow-sm"
-                : "border border-[color:var(--hs-border)] bg-white text-[color:var(--hs-muted)] hover:border-[color:var(--hs-sage)] hover:bg-[color:var(--hs-sage-soft)]"
-            }`}
-          >
-            <VolumeX aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-            Quiet
-          </button>
-
-          <button
-            type="button"
-            onClick={onTogglePlentySockets}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-sage)] focus-visible:ring-offset-2 ${
-              plentySocketsOnly
-                ? "bg-[color:var(--hs-sage-dark)] text-white shadow-sm"
-                : "border border-[color:var(--hs-border)] bg-white text-[color:var(--hs-muted)] hover:border-[color:var(--hs-sage)] hover:bg-[color:var(--hs-sage-soft)]"
-            }`}
-          >
-            <PlugZap aria-hidden="true" className="h-4 w-4" strokeWidth={2} />
-            Sockets
-          </button>
+        <div className="mt-3">
+          <QuickFilters filters={filters} onChange={onChange} onOpenFilters={onOpenFilters} />
         </div>
       </div>
 
       <div className="space-y-3 p-4">
+        <WalkingLocationAction />
+        {cafes.length === 0 && <p className="text-sm leading-6 text-[color:var(--hs-text-secondary)]">No matching workspaces in {city} yet. Try clearing your filters or choosing another city.</p>}
         {cafes.map((cafe) => (
           <CafeCard
             key={cafe.name}

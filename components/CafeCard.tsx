@@ -5,7 +5,6 @@ import Image from "next/image";
 import {
   ChevronRight,
   Coffee,
-  PersonStanding,
   PlugZap,
   Star,
   Volume2,
@@ -17,6 +16,10 @@ import { Cafe } from "@/types/cafe";
 import { CAFE_IMAGE_PLACEHOLDER } from "@/utils/cafeImages";
 import { getStudyScoreColor } from "@/utils/studyScore";
 import FeatureChip, { type FeatureTone } from "./FeatureChip";
+import WalkTime from "./WalkTime";
+import { useCafeTime } from "./CafeTimeProvider";
+import { getOpeningStatus } from "@/utils/openingHours";
+import { CITY_CONFIG } from "@/lib/cities";
 
 interface CafeCardProps {
   cafe: Cafe;
@@ -82,6 +85,10 @@ export default function CafeCard({
   variant = "sidebar",
 }: CafeCardProps) {
   const { wifiTone, noiseTone, socketsTone } = getFeatureTones(cafe);
+  const now = useCafeTime();
+  const openingStatus = cafe.weeklyOpeningHours && now
+    ? getOpeningStatus(cafe.weeklyOpeningHours, now, CITY_CONFIG[cafe.city].timeZone) : null;
+  const closedLabel = openingStatus && !openingStatus.isOpen ? openingStatus.label : null;
 
   if (variant === "sidebar") {
     return (
@@ -119,14 +126,7 @@ export default function CafeCard({
             <Wallet aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
             {cafe.price}
           </span>
-          <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[color:var(--hs-canvas)] px-3 text-sm font-medium text-[color:var(--hs-muted)]">
-            <PersonStanding
-              aria-hidden="true"
-              className="h-3.5 w-3.5"
-              strokeWidth={2}
-            />
-            {cafe.walkTime} min
-          </span>
+          <WalkTime coords={cafe.coords} />
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -142,6 +142,7 @@ export default function CafeCard({
             tone={socketsTone}
           />
         </div>
+        {closedLabel && <p className="mt-3 text-xs leading-5 text-[color:var(--hs-text-secondary)]">{closedLabel}</p>}
       </div>
     );
   }
@@ -160,7 +161,7 @@ export default function CafeCard({
           onClick();
         }
       }}
-      className={`hs-cafe-list-card flex h-[136px] cursor-pointer items-stretch gap-1 rounded-[22px] p-2 text-left transition-[transform,box-shadow,ring] duration-150 active:scale-[0.99] motion-reduce:transform-none ${
+      className={`hs-cafe-list-card flex ${closedLabel ? "h-[156px]" : "h-[136px]"} cursor-pointer items-stretch gap-1 rounded-[22px] p-2 text-left transition-[transform,box-shadow,ring] duration-150 active:scale-[0.99] motion-reduce:transform-none ${
         selected ? "ring-2 ring-[color:var(--hs-green)]" : ""
       }`}
     >
@@ -171,14 +172,12 @@ export default function CafeCard({
           {cafe.name}
         </h2>
 
-        <div className="mt-1.5 flex min-w-0 items-center gap-1.5 whitespace-nowrap text-[14px] font-medium text-[color:var(--hs-text-secondary)] max-[374px]:gap-1 max-[374px]:text-[13px]">
+        <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[14px] font-medium text-[color:var(--hs-text-secondary)] max-[374px]:gap-x-1 max-[374px]:text-[13px]">
           <Star aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.9} />
           <span>{cafe.rating}</span>
           <span aria-hidden="true" className="h-3 border-l border-[color:var(--hs-border)]" />
           <span>{cafe.price}</span>
-          <span aria-hidden="true" className="h-3 border-l border-[color:var(--hs-border)]" />
-          <PersonStanding aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.9} />
-          <span>{cafe.walkTime} min</span>
+          <WalkTime coords={cafe.coords} compact />
         </div>
 
         <div className="mt-2 flex gap-1 overflow-hidden">
@@ -189,6 +188,7 @@ export default function CafeCard({
             <span className="whitespace-nowrap">{cafe.noise}</span>
           </span>
         </div>
+        {closedLabel && <p className="mt-1.5 truncate text-[11px] leading-4 text-[color:var(--hs-text-secondary)]" title={closedLabel}>{closedLabel}</p>}
       </div>
 
       <div className="flex shrink-0 items-center gap-px">

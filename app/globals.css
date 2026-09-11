@@ -2,9 +2,9 @@
 
 :root {
   --hs-bg: #fafaf7;
-  --hs-text: #151817;
-  --hs-text-secondary: #626762;
-  --hs-text-tertiary: #858a86;
+  --hs-text: #1c211d;
+  --hs-text-secondary: #4f5851;
+  --hs-text-tertiary: #6b746d;
   --hs-green: #2f7138;
   --hs-green-deep: #255d2f;
   --hs-green-soft: #eaf3e9;
@@ -26,12 +26,12 @@
   --hs-surface: #ffffff;
   --hs-ink: var(--hs-text);
   --hs-muted: var(--hs-text-tertiary);
-  --hs-muted-light: #a1a6a2;
+  --hs-muted-light: #8b938d;
   --hs-border: #e5e8e3;
   --hs-sage: var(--hs-green);
   --hs-sage-dark: var(--hs-green-deep);
   --hs-sage-soft: var(--hs-green-soft);
-  --hs-wordmark: var(--hs-font-system);
+  --hs-wordmark: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
   --background: var(--hs-canvas);
   --foreground: var(--hs-ink);
@@ -54,7 +54,7 @@
   --color-hs-sage-dark: var(--hs-sage-dark);
   --color-hs-sage-soft: var(--hs-sage-soft);
   --font-sans: var(--hs-font-system);
-  --font-brand: var(--hs-font-system);
+  --font-brand: var(--hs-wordmark);
 }
 
 html {
@@ -118,6 +118,11 @@ body {
 .hs-map-marker {
   height: 44px;
   width: 44px;
+}
+
+.hs-map-marker.is-closed {
+  opacity: 0.48;
+  filter: grayscale(1);
 }
 
 .hs-map-pin {

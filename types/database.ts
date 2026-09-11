@@ -1,3 +1,6 @@
+import type { City } from "@/lib/cities";
+import type { WeeklyOpeningHours } from "./openingHours";
+
 export type Json =
   | string
   | number
@@ -11,6 +14,11 @@ export interface Database {
     Tables: {
       cafes: {
         Row: {
+          city: City;
+          is_independent: boolean | null;
+          seat_count: number | null;
+          last_verified_at: string | null;
+          weekly_opening_hours: WeeklyOpeningHours | null;
           id: string;
           slug: string;
           name: string;
@@ -24,34 +32,41 @@ export interface Database {
           busyness: "Quiet" | "Moderate" | "Busy";
           rating: number;
           price: "£" | "££" | "£££";
-          walk_time: number;
+          walk_time: number | null;
           image_url: string;
           coffee: "Excellent" | "Good" | "Basic";
           seating: "Comfortable" | "Average" | "Basic";
-          opening_hours: string;
+          opening_hours: string | null;
           is_active: boolean;
           created_at: string;
           updated_at: string;
         };
         Insert: {
+          city: City;
+          is_independent?: boolean | null;
+          seat_count?: number | null;
+          last_verified_at?: string | null;
+          weekly_opening_hours?: WeeklyOpeningHours | null;
           id?: string;
           slug: string;
           name: string;
           description: string;
           latitude: number;
           longitude: number;
-          study_score: number;
+          // Calculated by the v1 trigger when inputs are complete. Incomplete
+          // legacy inserts still require an explicit retained score.
+          study_score?: number;
           wifi: "Great WiFi" | "Good WiFi" | "Okay WiFi";
           noise: "Quiet" | "Moderate" | "Loud";
           sockets: "Plenty" | "Some" | "Few";
           busyness: "Quiet" | "Moderate" | "Busy";
           rating: number;
           price: "£" | "££" | "£££";
-          walk_time: number;
+          walk_time?: number | null;
           image_url: string;
           coffee: "Excellent" | "Good" | "Basic";
           seating: "Comfortable" | "Average" | "Basic";
-          opening_hours: string;
+          opening_hours?: string | null;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;

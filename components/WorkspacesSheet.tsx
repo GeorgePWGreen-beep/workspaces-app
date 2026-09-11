@@ -6,8 +6,14 @@ import { Bookmark, UsersRound, type LucideIcon } from "lucide-react";
 import { Cafe } from "@/types/cafe";
 import CafeCard from "./CafeCard";
 import CafeDetails from "./CafeDetails";
+import type { City } from "@/lib/cities";
+import { WalkingLocationAction } from "./LocationProvider";
 
 interface WorkspacesSheetProps {
+  city: City;
+  onChangeCity: () => void;
+  onOpenFilters: () => void;
+  isObscured?: boolean;
   cafes: Cafe[];
   mode: "nearby" | "saved" | "friends" | "cafe" | null;
   selectedCafe: Cafe | null;
@@ -140,6 +146,10 @@ function getReleaseState(
 }
 
 export default function WorkspacesSheet({
+  city,
+  onChangeCity,
+  onOpenFilters,
+  isObscured = false,
   cafes,
   mode,
   selectedCafe,
@@ -466,6 +476,7 @@ export default function WorkspacesSheet({
           type="button"
           aria-label="Close cafe details"
           className="fixed inset-0 z-40 bg-black/10 md:hidden"
+          style={{ visibility: isObscured ? "hidden" : "visible" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: sheetState === "closed" ? 0 : 1 }}
           transition={{ duration: 0.2 }}
@@ -485,7 +496,7 @@ export default function WorkspacesSheet({
         className={`hs-bottom-sheet fixed inset-x-0 bottom-0 z-50 flex h-[95dvh] flex-col overflow-hidden rounded-t-[var(--hs-radius-sheet)] md:hidden ${
           sheetState === "collapsed" ? "touch-none" : ""
         }`}
-        style={{ y: sheetY }}
+        style={{ y: sheetY, visibility: isObscured ? "hidden" : "visible" }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={finishDrag}
@@ -524,14 +535,19 @@ export default function WorkspacesSheet({
             <div className="px-5 pb-7 pt-1">
               <div className="mb-4">
                 <h2 className="text-[27px] font-bold leading-[1.05] tracking-[-0.026em] text-[color:var(--hs-text)]">
-                  Best seats near you
+                  Best seats in {city}
                 </h2>
                 <p className="mt-1.5 text-[16px] font-normal text-[color:var(--hs-text-secondary)]">
-                  {nearbyCafes.length} workspaces in Cambridge
+                  {nearbyCafes.length} {nearbyCafes.length === 1 ? "workspace" : "workspaces"} <span aria-hidden="true">· </span>
+                  <button type="button" onClick={onChangeCity} className="min-h-11 font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Change city</button>
+                  <span aria-hidden="true"> · </span>
+                  <button type="button" onClick={onOpenFilters} className="min-h-11 font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Filters</button>
                 </p>
+                <WalkingLocationAction />
               </div>
 
               <div className="space-y-3">
+                {nearbyCafes.length === 0 && <p className="py-4 text-sm leading-6 text-[color:var(--hs-text-secondary)]">No matching workspaces in {city} yet. Try clearing your filters or choosing another city.</p>}
                 {nearbyCafes.map((cafe) => (
                   <CafeCard
                     key={cafe.name}
