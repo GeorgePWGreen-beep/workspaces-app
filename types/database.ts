@@ -53,7 +53,9 @@ export interface Database {
           description: string;
           latitude: number;
           longitude: number;
-          study_score: number;
+          // Calculated by the v1 trigger when inputs are complete. Incomplete
+          // legacy inserts still require an explicit retained score.
+          study_score?: number;
           wifi: "Great WiFi" | "Good WiFi" | "Okay WiFi";
           noise: "Quiet" | "Moderate" | "Loud";
           sockets: "Plenty" | "Some" | "Few";

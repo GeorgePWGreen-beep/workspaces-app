@@ -1,7 +1,8 @@
 import { Cafe } from "@/types/cafe";
 import { CAFE_IMAGE_PLACEHOLDER } from "@/utils/cafeImages";
+import { calculateStudyScore } from "@/utils/studyScoreV1";
 
-export const cafes: Cafe[] = [
+const developmentCafeRecords: Cafe[] = [
   {
     city: "Exeter",
     isIndependent: true,
@@ -197,3 +198,9 @@ export const cafes: Cafe[] = [
     openingHours: "08:30 - 17:30",
   },
 ];
+
+// Keep legacy values only while a fixture lacks verified scoring inputs.
+export const cafes: Cafe[] = developmentCafeRecords.map((cafe) => ({
+  ...cafe,
+  studyScore: calculateStudyScore(cafe) ?? cafe.studyScore,
+}));

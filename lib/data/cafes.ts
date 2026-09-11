@@ -18,6 +18,8 @@ export function mapCafeRowToCafe(row: CafeRow): Cafe {
     lastVerifiedAt: row.last_verified_at ?? null,
     weeklyOpeningHours: isWeeklyOpeningHours(row.weekly_opening_hours) ? row.weekly_opening_hours : null,
     name: row.name,
+    // The database maintains v1, retaining the stored score for incomplete rows.
+    // Do not recompute here: displays, filters and database ordering must agree.
     studyScore: row.study_score,
     coords: [row.longitude, row.latitude],
     wifi: row.wifi,
