@@ -23,8 +23,7 @@ export async function createClient() {
             cookieStore.set(name, value, options),
           );
         } catch {
-          // Server Components cannot write cookies. A future auth proxy can
-          // refresh sessions where response cookie mutation is supported.
+          // Server Components cannot write cookies; proxy.ts refreshes sessions.
         }
       },
     },

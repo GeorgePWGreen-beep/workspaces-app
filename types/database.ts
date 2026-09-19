@@ -1,5 +1,6 @@
 import type { City } from "@/lib/cities";
 import type { WeeklyOpeningHours } from "./openingHours";
+import type { Profile, PublicProfile } from "./profile";
 
 export type Json =
   | string
@@ -12,6 +13,12 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      profiles: {
+        Row: Profile;
+        Insert: Pick<Profile, "id" | "username"> & Partial<Omit<Profile, "id" | "username">>;
+        Update: Partial<Pick<Profile, "username" | "display_name" | "avatar_url">>;
+        Relationships: [];
+      };
       cafes: {
         Row: {
           city: City;
@@ -76,7 +83,10 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      is_username_available: { Args: { candidate: string }; Returns: boolean };
+      get_public_profile: { Args: { requested_username: string }; Returns: PublicProfile[] };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

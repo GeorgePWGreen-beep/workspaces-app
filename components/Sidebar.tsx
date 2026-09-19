@@ -6,6 +6,7 @@ import CafeCard from "./CafeCard";
 import QuickFilters, { type QuickFiltersProps } from "./QuickFilters";
 import type { City } from "@/lib/cities";
 import { WalkingLocationAction } from "./LocationProvider";
+import AccountButton from "./AccountButton";
 
 export default function Sidebar({
   city,
@@ -18,6 +19,7 @@ export default function Sidebar({
   filters,
   onChange,
   onOpenFilters,
+  onOpenAccount,
 }: {
   city: City;
   onChangeCity: () => void;
@@ -26,13 +28,17 @@ export default function Sidebar({
   setSelectedCafe: (cafe: Cafe) => void;
   search: string;
   onSearchChange: (value: string) => void;
+  onOpenAccount: () => void;
 } & QuickFiltersProps) {
   return (
     <div className="h-full w-96 overflow-y-auto border-r border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)]">
       <div className="border-b border-[color:var(--hs-border)] p-4">
+        <div className="flex items-center justify-between gap-3">
         <h1 className="text-[32px] font-extrabold leading-none tracking-[-0.06em] text-[color:var(--hs-ink)]">
           HOT SEATS
         </h1>
+        <AccountButton onClick={onOpenAccount} />
+        </div>
 
         <p className="mb-5 mt-2 text-[color:var(--hs-muted)]">
           Study spots in {city}. <button type="button" onClick={onChangeCity} className="min-h-11 text-sm font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Change city</button>

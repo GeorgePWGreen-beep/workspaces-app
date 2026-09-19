@@ -7,6 +7,7 @@ import CityChooser from "@/components/CityChooser";
 import { LocationProvider, useLocation } from "@/components/LocationProvider";
 import { CafeTimeProvider, useCafeTime } from "@/components/CafeTimeProvider";
 import FiltersSheet from "@/components/FiltersSheet";
+import AccountSheet, { type AccountNotice } from "@/components/AccountSheet";
 import { createDefaultFilters, type CafeFilters } from "@/types/filters";
 import { filterCafes } from "@/utils/filters";
 import { CITY_STORAGE_KEY, NEARBY_GUIDANCE_KEY, isCity, type City } from "@/lib/cities";
@@ -32,6 +33,9 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
   const [filters, setFilters] = useState<CafeFilters>(createDefaultFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const filtersTrigger = useRef<HTMLElement | null>(null);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [accountNotice, setAccountNotice] = useState<AccountNotice>(null);
+  const accountTrigger = useRef<HTMLElement | null>(null);
   const { coordinates } = useLocation();
   const now = useCafeTime();
 
@@ -43,6 +47,13 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
         pendingGuidance.current = window.localStorage.getItem(NEARBY_GUIDANCE_KEY) !== "seen";
       } catch { /* Storage may be disabled; selection still works this visit. */ }
       setStorageReady(true);
+      const url = new URL(window.location.href);
+      const notice = url.searchParams.get("auth");
+      if (notice === "confirmed" || notice === "confirmation-error") {
+        setAccountNotice(notice); setAccountOpen(true);
+        url.searchParams.delete("auth");
+        window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+      }
     });
     return () => window.cancelAnimationFrame(frame);
   }, []);
@@ -92,6 +103,16 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
     });
   };
 
+  const openAccount = () => {
+    accountTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setAccountNotice(null); setAccountOpen(true);
+  };
+  const closeAccount = () => {
+    setAccountOpen(false); setAccountNotice(null);
+    const trigger = accountTrigger.current;
+    window.requestAnimationFrame(() => { if (trigger?.isConnected) trigger.focus({ preventScroll: true }); });
+  };
+
   const openCafe = useCallback((cafe: Cafe) => {
     setSelectedCafe(cafe);
     setSheetMode("cafe");
@@ -125,6 +146,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
           filters={filters}
           onChange={changeFilters}
           onOpenFilters={openFilters}
+          onOpenAccount={openAccount}
         />
       </div>
 
@@ -146,13 +168,14 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
         filters={filters}
         onChange={changeFilters}
         onOpenFilters={openFilters}
+        onOpenAccount={openAccount}
       />
 
       {!choosingCity && <WorkspacesSheet
         city={city}
         onChangeCity={openCityChooser}
         onOpenFilters={openFilters}
-        isObscured={filtersOpen}
+        isObscured={filtersOpen || accountOpen}
         cafes={filteredCafes}
         mode={sheetMode}
         selectedCafe={selectedCafe}
@@ -169,6 +192,8 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
 
       {filtersOpen && !choosingCity && <FiltersSheet filters={filters} onChange={changeFilters}
         onClear={() => changeFilters(createDefaultFilters())} onClose={closeFilters} resultCount={filteredCafes.length} />}
+
+      {accountOpen && !choosingCity && <AccountSheet onClose={closeAccount} notice={accountNotice} />}
 
       {sheetMode === null && !choosingCity && <FloatingDock onSelect={openDockSheet} />}
     </div>
