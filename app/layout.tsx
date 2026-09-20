@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Hot Seats — Find your study spot",
@@ -33,7 +34,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body><AuthProvider>{children}</AuthProvider></body>
+      <body>
+  <AuthProvider>{children}</AuthProvider>
+  <Analytics />
+</body>
     </html>
   );
 }

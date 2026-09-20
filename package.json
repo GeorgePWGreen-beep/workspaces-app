@@ -10,11 +10,13 @@
     "test:data": "tsc --target ES2022 --module commonjs --skipLibCheck --outDir .next/cafe-data-tests types/openingHours.ts utils/openingHours.ts utils/walking.ts lib/cities.ts && node --test tests/cafe-data.test.cjs",
     "test:filters": "tsc --target ES2022 --module commonjs --skipLibCheck --strict --outDir .next/filter-tests types/filters.ts utils/filters.ts && node --test tests/filters.test.cjs",
     "test:score": "tsc --target ES2022 --module commonjs --skipLibCheck --strict --outDir .next/score-tests utils/studyScoreV1.ts utils/filters.ts types/filters.ts && node --test tests/study-score.test.cjs",
-    "test:auth": "tsc --target ES2022 --module commonjs --skipLibCheck --strict --rootDir . --outDir .next/auth-tests utils/auth.ts && node --test tests/auth.test.cjs"
+    "test:auth": "tsc --target ES2022 --module commonjs --skipLibCheck --strict --rootDir . --outDir .next/auth-tests utils/auth.ts && node --test tests/auth.test.cjs",
+    "test:match": "tsc --target ES2022 --module commonjs --skipLibCheck --strict --outDir .next/match-tests utils/matchV1.ts utils/studyScoreV1.ts types/studyPreferences.ts && node --test tests/match.test.cjs tests/preferences-db.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
+    "@vercel/analytics": "^2.0.1",
     "framer-motion": "^13.0.0",
     "lucide-react": "^1.30.0",
     "mapbox-gl": "^3.20.0",

@@ -14,6 +14,7 @@ import {
   Wallet,
   Wifi,
 } from "lucide-react";
+import MatchBadge from "./MatchBadge";
 import { Cafe } from "@/types/cafe";
 import CafeHeroImage from "./CafeHeroImage";
 import FeatureChip, { type FeatureTone } from "./FeatureChip";
@@ -184,6 +185,8 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
           <span>{cafe.price}</span>
           <WalkTime coords={cafe.coords} />
         </div>
+
+        <MatchBadge cafe={cafe} details />
 
         <OpeningHours cafe={cafe} />
 

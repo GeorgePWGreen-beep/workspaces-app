@@ -2,6 +2,9 @@
 
 import { Search } from "lucide-react";
 import { Cafe } from "@/types/cafe";
+import { useStudyPreferences } from "./StudyPreferencesProvider";
+import { rankCafes } from "@/utils/matchV1";
+import { useMemo } from "react";
 import CafeCard from "./CafeCard";
 import QuickFilters, { type QuickFiltersProps } from "./QuickFilters";
 import type { City } from "@/lib/cities";
@@ -30,6 +33,8 @@ export default function Sidebar({
   onSearchChange: (value: string) => void;
   onOpenAccount: () => void;
 } & QuickFiltersProps) {
+  const { matches, preferences } = useStudyPreferences();
+  const nearbyCafes = useMemo(() => rankCafes(cafes, matches), [cafes, matches]);
   return (
     <div className="h-full w-96 overflow-y-auto border-r border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)]">
       <div className="border-b border-[color:var(--hs-border)] p-4">
@@ -65,9 +70,10 @@ export default function Sidebar({
       </div>
 
       <div className="space-y-3 p-4">
+        <p className="text-xs text-[color:var(--hs-text-secondary)]">{preferences ? "Best match for you" : "Highest Study Score"}</p>
         <WalkingLocationAction />
         {cafes.length === 0 && <p className="text-sm leading-6 text-[color:var(--hs-text-secondary)]">No matching workspaces in {city} yet. Try clearing your filters or choosing another city.</p>}
-        {cafes.map((cafe) => (
+        {nearbyCafes.map((cafe) => (
           <CafeCard
             key={cafe.name}
             cafe={cafe}

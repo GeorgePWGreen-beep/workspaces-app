@@ -4,6 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { animate, motion, useMotionValue } from "framer-motion";
 import { Bookmark, UsersRound, type LucideIcon } from "lucide-react";
 import { Cafe } from "@/types/cafe";
+import { useStudyPreferences } from "./StudyPreferencesProvider";
+import { rankCafes } from "@/utils/matchV1";
+import { useMemo } from "react";
 import CafeCard from "./CafeCard";
 import CafeDetails from "./CafeDetails";
 import type { City } from "@/lib/cities";
@@ -156,9 +159,8 @@ export default function WorkspacesSheet({
   onSelectCafe,
   onDismissed,
 }: WorkspacesSheetProps) {
-  const nearbyCafes = [...cafes].sort(
-    (firstCafe, secondCafe) => secondCafe.studyScore - firstCafe.studyScore,
-  );
+  const { matches, preferences } = useStudyPreferences();
+  const nearbyCafes = useMemo(() => rankCafes(cafes, matches), [cafes, matches]);
   const sheetRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const dragSessionRef = useRef<DragSession | null>(null);
@@ -543,6 +545,7 @@ export default function WorkspacesSheet({
                   <span aria-hidden="true"> · </span>
                   <button type="button" onClick={onOpenFilters} className="min-h-11 font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Filters</button>
                 </p>
+                <p className="mb-2 text-xs text-[color:var(--hs-text-secondary)]">{preferences ? "Best match for you" : "Highest Study Score"}</p>
                 <WalkingLocationAction />
               </div>
 

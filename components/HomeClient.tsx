@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
+import { StudyPreferencesProvider, useStudyPreferences } from "./StudyPreferencesProvider";
+import StudyPreferencesSheet from "./StudyPreferencesSheet";
 import CafeDetails from "@/components/CafeDetails";
 import CityChooser from "@/components/CityChooser";
 import { LocationProvider, useLocation } from "@/components/LocationProvider";
@@ -19,10 +21,11 @@ import WorkspacesSheet from "@/components/WorkspacesSheet";
 import type { Cafe } from "@/types/cafe";
 
 export default function HomeClient({ cafes }: { cafes: Cafe[] }) {
-  return <LocationProvider><CafeTimeProvider><HomeExperience cafes={cafes} /></CafeTimeProvider></LocationProvider>;
+  return <StudyPreferencesProvider cafes={cafes}><LocationProvider><CafeTimeProvider><HomeExperience cafes={cafes} /></CafeTimeProvider></LocationProvider></StudyPreferencesProvider>;
 }
 
 function HomeExperience({ cafes }: { cafes: Cafe[] }) {
+  const preferences = useStudyPreferences();
   const [city, setCity] = useState<City | null>(null);
   const [storageReady, setStorageReady] = useState(false);
   const [choosingCity, setChoosingCity] = useState(false);
@@ -175,7 +178,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
         city={city}
         onChangeCity={openCityChooser}
         onOpenFilters={openFilters}
-        isObscured={filtersOpen || accountOpen}
+        isObscured={filtersOpen || accountOpen || preferences.editorOpen}
         cafes={filteredCafes}
         mode={sheetMode}
         selectedCafe={selectedCafe}
@@ -193,7 +196,9 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
       {filtersOpen && !choosingCity && <FiltersSheet filters={filters} onChange={changeFilters}
         onClear={() => changeFilters(createDefaultFilters())} onClose={closeFilters} resultCount={filteredCafes.length} />}
 
-      {accountOpen && !choosingCity && <AccountSheet onClose={closeAccount} notice={accountNotice} />}
+      {preferences.editorOpen && !choosingCity && !accountOpen && !filtersOpen && <StudyPreferencesSheet key={preferences.status} />}
+
+      {accountOpen && !choosingCity && <AccountSheet onStudyPreferences={() => { closeAccount(); preferences.openEditor(); }} onClose={closeAccount} notice={accountNotice} />}
 
       {sheetMode === null && !choosingCity && <FloatingDock onSelect={openDockSheet} />}
     </div>

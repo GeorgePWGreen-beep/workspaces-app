@@ -1,3 +1,4 @@
+import type { StudyPreferencesRow, StudyPreferences } from "./studyPreferences";
 import type { City } from "@/lib/cities";
 import type { WeeklyOpeningHours } from "./openingHours";
 import type { Profile, PublicProfile } from "./profile";
@@ -13,6 +14,12 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      user_study_preferences: {
+        Row: StudyPreferencesRow;
+        Insert: StudyPreferences & { user_id: string };
+        Update: Partial<StudyPreferences>;
+        Relationships: [];
+      };
       profiles: {
         Row: Profile;
         Insert: Pick<Profile, "id" | "username"> & Partial<Omit<Profile, "id" | "username">>;

@@ -8,7 +8,7 @@ import { validateAuthFields, type AuthFieldErrors, type AuthFields } from "@/uti
 export type AccountNotice = "confirmed" | "confirmation-error" | null;
 const actionStyle = "flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[color:var(--hs-green)] px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-[color:var(--hs-green-deep)] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--hs-green)]";
 
-export default function AccountSheet({ onClose, notice }: { onClose: () => void; notice: AccountNotice }) {
+export default function AccountSheet({ onClose, notice, onStudyPreferences }: { onClose: () => void; notice: AccountNotice; onStudyPreferences: () => void }) {
   const auth = useAuth();
   const [mode, setMode] = useState<"welcome" | "signup" | "signin" | "confirmation">(notice ? "signin" : "welcome");
   const [fields, setFields] = useState<AuthFields>({ username: "", email: "", password: "" });
@@ -93,6 +93,7 @@ export default function AccountSheet({ onClose, notice }: { onClose: () => void;
       {auth.loading ? <p role="status" className="flex items-center gap-2 py-8 text-sm text-[color:var(--hs-text-secondary)]"><LoaderCircle className="h-4 w-4 animate-spin" />Loading your account…</p>
         : auth.user ? <div className="mt-6 space-y-5">
           {auth.profile && <div className="rounded-2xl border border-[color:var(--hs-border)] bg-white p-4"><p className="break-words text-xl font-bold">{auth.profile.display_name || auth.profile.username}</p><p className="mt-1 break-all text-sm text-[color:var(--hs-text-secondary)]">@{auth.profile.username}</p></div>}
+          <button type="button" onClick={onStudyPreferences} className="min-h-12 w-full rounded-2xl border border-[color:var(--hs-border)] bg-white px-4 py-3 text-left font-semibold">Study preferences</button>
           <div><p className="text-xs font-semibold text-[color:var(--hs-text-secondary)]">Email</p><p className="mt-1 break-all text-base">{auth.user.email}</p></div>
           <button type="button" disabled={auth.busy} onClick={async () => { setMessage(""); const result = await auth.signOut(); if (!result.ok) setMessage(result.message); else switchMode("welcome"); }} className={actionStyle}>{auth.busy ? "Logging out…" : "Log out"}</button>
         </div> : mode === "welcome" ? <div className="mt-7 space-y-3">
