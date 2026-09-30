@@ -43,6 +43,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const filtersTrigger = useRef<HTMLElement | null>(null);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [accountMode, setAccountMode] = useState<"welcome" | "signin" | "signup">("welcome");
   const [accountNotice, setAccountNotice] = useState<AccountNotice>(null);
   const accountTrigger = useRef<HTMLElement | null>(null);
   const { coordinates } = useLocation();
@@ -153,7 +154,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
 
   const openAccount = () => {
     accountTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    setAccountNotice(null); setAccountOpen(true);
+    setAccountMode("welcome"); setAccountNotice(null); setAccountOpen(true);
   };
   const closeAccount = () => {
     setAccountOpen(false); setAccountNotice(null);
@@ -201,6 +202,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
           onChange={changeFilters}
           onOpenFilters={openFilters}
           onOpenAccount={openAccount}
+          onOpenFriends={() => openDockSheet("friends")}
         />
       </div>
 
@@ -226,6 +228,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
       />
 
       {!choosingCity && <WorkspacesSheet
+        onFriendsAuth={mode => { accountTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setAccountMode(mode); setAccountNotice(null); setAccountOpen(true); }}
         city={city}
         onChangeCity={openCityChooser}
         onOpenFilters={openFilters}
@@ -249,7 +252,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
 
       {preferences.editorOpen && !choosingCity && !accountOpen && !filtersOpen && <StudyPreferencesSheet key={preferences.status} />}
 
-      {accountOpen && !choosingCity && <AccountSheet onStudyPreferences={() => { closeAccount(); preferences.openEditor(); }} onClose={closeAccount} notice={accountNotice} />}
+      {accountOpen && !choosingCity && <AccountSheet initialMode={accountMode} onStudyPreferences={() => { closeAccount(); preferences.openEditor(); }} onClose={closeAccount} notice={accountNotice} />}
 
       {sheetMode === null && !choosingCity && <FloatingDock onSelect={openDockSheet} />}
     </div>

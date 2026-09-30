@@ -8,9 +8,9 @@ import { validateAuthFields, type AuthFieldErrors, type AuthFields } from "@/uti
 export type AccountNotice = "confirmed" | "confirmation-error" | null;
 const actionStyle = "flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[color:var(--hs-green)] px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-[color:var(--hs-green-deep)] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--hs-green)]";
 
-export default function AccountSheet({ onClose, notice, onStudyPreferences }: { onClose: () => void; notice: AccountNotice; onStudyPreferences: () => void }) {
+export default function AccountSheet({ onClose, notice, onStudyPreferences, initialMode = "welcome" }: { onClose: () => void; notice: AccountNotice; onStudyPreferences: () => void; initialMode?: "welcome" | "signin" | "signup" }) {
   const auth = useAuth();
-  const [mode, setMode] = useState<"welcome" | "signup" | "signin" | "confirmation">(notice ? "signin" : "welcome");
+  const [mode, setMode] = useState<"welcome" | "signup" | "signin" | "confirmation">(notice ? "signin" : initialMode);
   const [fields, setFields] = useState<AuthFields>({ username: "", email: "", password: "" });
   const [errors, setErrors] = useState<AuthFieldErrors>({});
   const [message, setMessage] = useState("");

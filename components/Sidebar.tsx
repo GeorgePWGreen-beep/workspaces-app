@@ -1,7 +1,7 @@
 "use client";
 
 import { BrandLockup } from "./BrandMark";
-import { Search } from "lucide-react";
+import { Search, UsersRound } from "lucide-react";
 import { Cafe } from "@/types/cafe";
 import { useStudyPreferences } from "./StudyPreferencesProvider";
 import { rankCafes } from "@/utils/matchV1";
@@ -24,6 +24,7 @@ export default function Sidebar({
   onChange,
   onOpenFilters,
   onOpenAccount,
+  onOpenFriends,
 }: {
   city: City;
   onChangeCity: () => void;
@@ -33,6 +34,7 @@ export default function Sidebar({
   search: string;
   onSearchChange: (value: string) => void;
   onOpenAccount: () => void;
+  onOpenFriends: () => void;
 } & QuickFiltersProps) {
   const { matches } = useStudyPreferences();
   const nearbyCafes = useMemo(() => rankCafes(cafes, matches), [cafes, matches]);
@@ -43,6 +45,7 @@ export default function Sidebar({
         <h1 className="min-w-0"><BrandLockup /></h1>
         <AccountButton onClick={onOpenAccount} />
         </div>
+        <button type="button" onClick={onOpenFriends} className="mt-3 flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-[color:var(--hs-green-deep)] hover:bg-[color:var(--hs-green-soft)]"><UsersRound aria-hidden="true" className="h-4 w-4" />Friends</button>
 
         <p className="mb-5 mt-2 text-[color:var(--hs-muted)]">
           Study spots in {city}. <button type="button" onClick={onChangeCity} className="min-h-11 text-sm font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Change city</button>
