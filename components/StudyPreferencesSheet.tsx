@@ -1,41 +1,66 @@
 "use client";
-import { useEffect, useId, useRef, useState } from "react";
+
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { X } from "lucide-react";
+import styles from "./StudyPreferences.module.css";
+import PreferenceMotif from "./PreferenceMotif";
 import { useStudyPreferences } from "./StudyPreferencesProvider";
-import { PRIORITIES, type StudyPreferences, type Priority } from "@/types/studyPreferences";
-const labels: Record<Priority, string> = { wifi: "Wi-Fi", sockets: "Sockets", seating: "Comfort", coffee: "Coffee", space: "Space" };
-const button = "min-h-12 rounded-2xl border border-[color:var(--hs-border)] px-4 py-3 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40";
+import PreferenceFields, { preferenceAction, type PreferenceDraft } from "./onboarding/PreferenceFields";
+
 export default function StudyPreferencesSheet() {
   const state = useStudyPreferences();
-  const [step, setStep] = useState(0);
-  const [atmosphere, setAtmosphere] = useState<StudyPreferences["atmosphere_preference"] | null>(state.preferences?.atmosphere_preference ?? null);
-  const [session, setSession] = useState<StudyPreferences["session_length"] | null>(state.preferences?.session_length ?? null);
-  const [priorities, setPriorities] = useState<Priority[]>(state.preferences?.priorities ?? []);
+  const [draft, setDraft] = useState<PreferenceDraft>(state.preferences ?? { atmosphere_preference: null, session_length: null, priorities: [] });
   const dialog = useRef<HTMLDialogElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const id = useId();
-  useEffect(() => { const el = dialog.current!; const trigger = document.activeElement; el.showModal(); heading.current?.focus(); return () => { el.close(); if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus(); }; }, []);
-  useEffect(() => { heading.current?.focus(); }, [step]);
-  const ready = state.status === "available" || state.status === "missing";
-  function option(value: string, label: string, selected: boolean, onClick: () => void, disabled = false) {
-    return <button key={value} type="button" aria-pressed={selected} disabled={state.busy || disabled} onClick={onClick} className={`${button} ${selected ? "border-[color:var(--hs-green)] bg-[color:var(--hs-green-soft)] text-[color:var(--hs-green-deep)]" : "bg-white"}`}>{label}</button>;
+  const ready = state.status === "available" || state.status === "missing" || state.status === "logged-out";
+
+  useEffect(() => {
+    const element = dialog.current!;
+    const trigger = document.activeElement;
+    element.showModal(); heading.current?.focus();
+    return () => { element.close(); if (trigger instanceof HTMLElement && trigger.isConnected) trigger.focus(); };
+  }, []);
+
+  async function save(event: FormEvent) {
+    event.preventDefault();
+    if (state.busy || !draft.atmosphere_preference || !draft.session_length) return;
+    await state.save({ atmosphere_preference: draft.atmosphere_preference, session_length: draft.session_length, priorities: draft.priorities });
   }
-  return <dialog ref={dialog} aria-labelledby={id} onCancel={e => { e.preventDefault(); state.closeEditor(); }} className="fixed inset-x-0 bottom-0 top-auto m-0 mx-auto max-h-[90dvh] w-full max-w-[460px] overflow-y-auto rounded-t-[32px] border-0 bg-[color:var(--hs-bg)] p-6 text-[color:var(--hs-text)] shadow-2xl backdrop:bg-black/25 md:inset-0 md:m-auto md:rounded-[32px]">
-    <p className="text-xs font-semibold text-[color:var(--hs-green-deep)]">Study preferences {ready && `\u00b7 ${step + 1} of 3`}</p>
-    <h2 id={id} ref={heading} tabIndex={-1} className="mt-3 text-[27px] font-bold leading-tight tracking-tight outline-none">{!ready ? "Your study preferences" : ["What atmosphere helps you focus?", "How long do you normally study for?", "What matters most?"][step]}</h2>
-    <p className="mt-3 text-sm leading-6 text-[color:var(--hs-text-secondary)]">{step === 2 ? `Choose up to 3 priorities (${priorities.length}/3).` : "Find cafes that suit you. Your answers stay private."}</p>
-    {ready && <div className="mt-5 grid gap-3">
-      {step === 0 && (["quiet", "balanced", "lively"] as const).map(v => option(v, v[0].toUpperCase() + v.slice(1), atmosphere === v, () => setAtmosphere(v)))}
-      {step === 1 && (["short", "medium", "long"] as const).map((v, i) => option(v, ["Under 1 hour", "1\u20132 hours", "2+ hours"][i], session === v, () => setSession(v)))}
-      {step === 2 && PRIORITIES.map(v => option(v, labels[v], priorities.includes(v), () => setPriorities(p => p.includes(v) ? p.filter(x => x !== v) : [...p, v]), priorities.length === 3 && !priorities.includes(v)))}
-    </div>}
-    {state.status === "loading" && <p role="status" className="py-6">Loading preferences...</p>}
-    {state.error && <p role="alert" className="mt-4 text-sm text-red-800">{state.error}</p>}
-    {state.status === "error" && <button className={`${button} mt-4 w-full`} onClick={state.retry}>Retry preferences</button>}
-    {ready && <div className="mt-6 flex gap-3">
-      {step > 0 && <button className={button} disabled={state.busy} onClick={() => setStep(s => s - 1)}>Back</button>}
-      <button className={`${button} flex-1 bg-[color:var(--hs-green)] text-white`} disabled={state.busy || (step === 0 && !atmosphere) || (step === 1 && !session)} onClick={() => { if (step < 2) setStep(s => s + 1); else if (atmosphere && session) void state.save({ atmosphere_preference: atmosphere, session_length: session, priorities }); }}>{state.busy ? "Saving..." : step === 2 ? "Finish" : "Continue"}</button>
-    </div>}
-    <button className="mt-3 min-h-11 w-full text-sm font-medium underline underline-offset-4 disabled:opacity-40" disabled={state.busy} onClick={state.closeEditor}>{state.preferences ? "Cancel" : "Skip for now"}</button>
-    {state.preferences && <button className="min-h-11 w-full text-xs text-[color:var(--hs-text-secondary)] underline disabled:opacity-40" disabled={state.busy} onClick={() => void state.reset()}>Reset preferences and remove Match</button>}
+
+  return <dialog ref={dialog} aria-labelledby={id} onCancel={event => { event.preventDefault(); state.closeEditor(); }} className={`${styles.sheet} fixed inset-x-0 bottom-0 top-auto m-0 mx-auto max-h-[90dvh] w-full max-w-[460px] overflow-hidden rounded-t-[28px] border border-white p-0 text-[color:var(--hs-text)] shadow-[0_16px_64px_rgba(20,25,21,0.16)] backdrop:bg-black/20 backdrop:backdrop-blur-[2px] md:inset-0 md:m-auto md:rounded-[28px]`}>
+    <form onSubmit={save} className="flex max-h-[90dvh] flex-col">
+      <header className={`${styles.sheetHeader} shrink-0`}>
+        <PreferenceMotif className={styles.motif} />
+        <div>
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[color:var(--hs-green-deep)]">Your study routine</p>
+          <h2 id={id} ref={heading} tabIndex={-1} className="text-[25px] font-bold leading-tight tracking-[-0.035em] outline-none">Study preferences</h2>
+          <p className="mt-2 text-[13px] leading-5 text-[color:var(--hs-text-secondary)]">Tune Hot Seats to the way you work.</p>
+        </div>
+        <button type="button" aria-label="Close study preferences" disabled={state.busy} onClick={state.closeEditor} className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[color:var(--hs-border)] bg-[color:var(--hs-surface)] focus-visible:outline-2 disabled:opacity-40"><X aria-hidden="true" className="h-5 w-5" strokeWidth={1.8} /></button>
+      </header>
+
+      <div className="min-h-0 overflow-y-auto overscroll-contain px-6 py-6">
+        {ready && <div className="space-y-8">
+          {["Atmosphere", "Session length", "What matters most"].map((label, step) => <section key={label} className={styles.section}>
+            <div className="mb-4 flex items-baseline justify-between gap-3"><h3><span aria-hidden="true" className={styles.sectionNumber}>0{step + 1}</span>{label}</h3>{step === 2 && <span aria-live="polite" className="text-[11px] font-medium tabular-nums text-[color:var(--hs-green-deep)]">{draft.priorities.length} of 3 selected</span>}</div>
+            {step === 2 && <p className="mb-4 text-[13px] text-[color:var(--hs-text-secondary)]">Choose up to 3</p>}
+            <PreferenceFields step={step} draft={draft} onChange={setDraft} busy={state.busy} />
+          </section>)}
+          <p className="text-xs leading-5 text-[color:var(--hs-text-secondary)]">{state.isGuest ? "Preferences stay on this device until you sign in." : "Your preferences are private. Study Score stays the same for everyone."}</p>
+          {state.preferences && <div className="border-t border-[color:var(--hs-border)] pt-4"><button type="button" disabled={state.busy} onClick={() => void state.reset()} className="min-h-11 text-xs text-[color:var(--hs-text-tertiary)] underline-offset-4 hover:underline focus-visible:outline-2 disabled:opacity-40">Reset preferences and remove Match</button></div>}
+        </div>}
+        {state.status === "loading" && <p role="status" className="py-6 text-sm">Loading preferences...</p>}
+        {state.status === "error" && <button type="button" onClick={state.retry} className="min-h-12 text-sm font-semibold text-[color:var(--hs-green-deep)] underline">Retry preferences</button>}
+      </div>
+
+      <footer className={`${styles.footer} shrink-0 px-6 pt-4 pb-[max(20px,env(safe-area-inset-bottom))]`}>
+        {state.error && <p role="alert" className="mb-3 text-sm leading-5 text-red-800">{state.error}</p>}
+        <div className="flex flex-col gap-1">
+          <button type="submit" disabled={!ready || state.busy || !draft.atmosphere_preference || !draft.session_length} className={preferenceAction}>{state.busy ? "Saving changes..." : "Save changes"}</button>
+          <button type="button" disabled={state.busy} onClick={state.closeEditor} className="min-h-11 rounded-xl px-4 text-[13px] font-medium text-[color:var(--hs-text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40">Cancel</button>
+        </div>
+      </footer>
+    </form>
   </dialog>;
 }

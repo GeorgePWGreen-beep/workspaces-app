@@ -99,6 +99,7 @@ export default function AccountSheet({ onClose, notice, onStudyPreferences }: { 
         </div> : mode === "welcome" ? <div className="mt-7 space-y-3">
           <button type="button" onClick={() => switchMode("signup")} className={actionStyle}>Create account</button>
           <button type="button" onClick={() => switchMode("signin")} className="min-h-12 w-full rounded-2xl border border-[color:var(--hs-border)] bg-white px-4 py-3 text-base font-semibold focus-visible:outline-2">Sign in</button>
+          <button type="button" onClick={onStudyPreferences} className="min-h-11 w-full text-sm font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Study preferences</button>
           <p className="pt-2 text-center text-xs leading-5 text-[color:var(--hs-text-secondary)]">Just browsing? The map is always here.</p>
         </div> : mode === "confirmation" ? <div className="mt-6 space-y-5">
           <MailCheck aria-hidden="true" className="h-10 w-10 text-[color:var(--hs-green)]" />

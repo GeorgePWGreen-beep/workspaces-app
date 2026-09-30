@@ -1,0 +1,66 @@
+.sheet { background: #f5f4ed; }
+.sheetHeader {
+  position: relative;
+  isolation: isolate;
+  background: #eaf0e3;
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid #d7e0cf;
+}
+.sheetHeader h2 { max-width: 260px; font-size: 30px; line-height: 1.06; margin-top: 14px; }
+.sheetHeader p:last-child { max-width: 215px; margin-top: 12px; }
+.sheetHeader > div { position: relative; z-index: 1; }
+.motif { position: absolute; right: 16px; bottom: 8px; width: 92px; color: #427047; opacity: .65; z-index: -1; }
+.sheetHeader > .motif { z-index: 0; }
+.sheetHeader > button { position: absolute; top: 16px; right: 16px; z-index: 2; width: 36px; height: 36px; background: #fafbf7; }
+.section { padding-top: 24px; border-top: 1px solid #daddd1; }
+.section:first-child { padding-top: 0; border-top: 0; }
+.section h3 { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.sectionNumber { color: #85937e; font-size: 10px; letter-spacing: .06em; margin-right: 10px; }
+.fields { display: grid; gap: 10px; min-width: 0; }
+.priorityGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.option {
+  position: relative; display: flex; align-items: center; gap: 12px;
+  min-height: 92px; min-width: 0; padding: 16px 14px;
+  border: 1px solid #dedfd5; border-radius: 18px; background: #fffef9;
+  box-shadow: 0 2px 5px #29392305; cursor: pointer;
+  transition: border-color 120ms, background-color 120ms;
+}
+.option:hover:not(.disabled) { border-color: #8ca47e; }
+.option:has(:focus-visible) { outline: 2px solid var(--hs-green); outline-offset: 3px; }
+.selected { border-color: #739269; background: #eaf1e2; box-shadow: inset 0 0 0 .5px #739269; }
+.iconTile { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 48px; border-radius: 13px; background: #eeeee5; color: #65715e; }
+.selected .iconTile { background: #376b3d; color: #fff; }
+.iconTile svg { width: 21px; height: 21px; }
+.label { min-width: 0; flex: 1; }
+.label > span:first-child { display: block; font-size: 15px; font-weight: 550; letter-spacing: -.015em; }
+.selected .label > span:first-child { font-weight: 700; color: #203f26; }
+.description { display: block; margin-top: 5px; font-size: 12px; line-height: 18px; color: #5b6256; }
+.control { display: grid; place-items: center; width: 18px; height: 18px; flex-shrink: 0; border: 1px solid #c2cbbc; border-radius: 50%; background: #fffef9; color: white; }
+.selected .control { background: #376b3d; border-color: #376b3d; }
+.priority { min-height: 100px; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px; }
+.priority .iconTile { width: 36px; height: 36px; border-radius: 10px; }
+.priority .control { position: absolute; top: 14px; right: 14px; border-radius: 6px; }
+.disabled:not(.selected) { opacity: .55; cursor: default; }
+.footer { background: #f5f4ed; border-top: 1px solid #daddd1; box-shadow: 0 -8px 20px #f5f4edb3; }
+.onboarding { background: #f5f4ed; overflow: hidden; padding-bottom: 0; }
+.onboarding > div { height: 100%; min-height: 0; }
+.onboarding > div > header { margin-bottom: 20px; flex-shrink: 0; }
+.stepScreen { justify-content: flex-start; min-height: 0; overflow-y: auto; padding: 0 0 8px; scrollbar-width: thin; }
+.stepScreen > * { flex-shrink: 0; }
+.questionHeader { position: relative; isolation: isolate; padding: 22px 20px 24px; border: 1px solid #dbe3d2; border-radius: 24px; background: #eaf0e3; }
+.questionHeader h1 { font-size: 29px; line-height: 1.1; max-width: 100%; position: relative; z-index: 1; text-align: left; }
+.questionHeader[data-step="2"] h1 { max-width: calc(100% - 45px); }
+.questionHeader .motif { right: 8px; bottom: 12px; width: 60px; opacity: .45; }
+.questionHeader > div:first-child { margin-bottom: 23px; }
+.stepScreen > .fields { margin-bottom: 24px; }
+.stepActions { position: sticky; bottom: -8px; z-index: 2; margin-top: auto; flex-shrink: 0; padding: 16px 0 max(12px, env(safe-area-inset-bottom)); }
+.stepActions > button:first-child { margin-top: 0; }
+.stepActions p { margin-top: 10px; font-size: 11px; }
+@media (min-width: 768px) {
+  .onboarding > div { max-width: 480px; }
+  .questionHeader { padding: 26px; }
+  .questionHeader h1 { font-size: 34px; max-width: 350px; }
+  .questionHeader .motif { width: 96px; }
+  .stepScreen { padding-right: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { .option { transition: none; } }

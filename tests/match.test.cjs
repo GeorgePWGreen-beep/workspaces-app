@@ -4,6 +4,8 @@ const assert=require('node:assert/strict');
 const {calculateMatch,rankCafes}=require('../.next/match-tests/utils/matchV1.js');
 const {calculateStudyScore}=require('../.next/match-tests/utils/studyScoreV1.js');
 const {validPreferences}=require('../.next/match-tests/types/studyPreferences.js');
+const {filterCafes}=require('../.next/match-tests/utils/filters.js');
+const {createDefaultFilters}=require('../.next/match-tests/types/filters.js');
 const perfect={wifi:'Great WiFi',noise:'Quiet',seating:'Comfortable',sockets:'Plenty',coffee:'Excellent',busyness:'Quiet',seatCount:50};
 const prefs={atmosphere_preference:'quiet',session_length:'medium',priorities:[]};
 test('perfect, poor and final-only rounding',()=>{
@@ -68,4 +70,43 @@ test('range and exact normalization across all preference combinations',()=>{
 test('ranking uses Match then universal score without mutating input',()=>{
  const a={studyScore:80},b={studyScore:90},c={studyScore:70};const input=[a,b,c];const matches=new Map([[a,{score:90}],[b,{score:90}],[c,{score:95}]]);
  assert.deepEqual(rankCafes(input,matches),[c,b,a]);assert.deepEqual(rankCafes(input,new Map()),[b,a,c]);assert.deepEqual(input,[a,b,c]);
+});
+
+test('quiet long-session and lively short-session preferences reverse ranking without changing Study Score',()=>{
+ const a={...perfect,name:'Quiet workspace',coffee:'Basic',seatCount:15,studyScore:82};
+ const b={...perfect,name:'Social coffee spot',wifi:'Good WiFi',noise:'Moderate',busyness:'Moderate',seating:'Average',sockets:'Some',studyScore:79};
+ const cafes=[a,b];const before=structuredClone(cafes);
+ const quiet={atmosphere_preference:'quiet',session_length:'long',priorities:['wifi','sockets','seating']};
+ const lively={atmosphere_preference:'lively',session_length:'short',priorities:['coffee','space']};
+ const scores=p=>new Map(cafes.map(c=>[c,calculateMatch(c,p)]));
+ const first=scores(quiet),second=scores(lively);
+ for(const cafe of cafes)assert.notEqual(first.get(cafe).score,second.get(cafe).score);
+ assert.deepEqual(rankCafes(cafes,first),[a,b]);
+ assert.deepEqual(rankCafes(cafes,second),[b,a]);
+ assert.deepEqual(cafes,before);
+ for(let i=0;i<cafes.length;i++)assert.equal(calculateStudyScore(cafes[i]),calculateStudyScore(before[i]));
+});
+
+test('reasons are deterministic, contribution-ordered and supported by cafe attributes',()=>{
+ const cafe={...perfect,sockets:'Some',seating:'Average',coffee:'Basic',seatCount:null};
+ const result=calculateMatch(cafe,prefs);
+ assert.deepEqual(calculateMatch(cafe,prefs).reasons,result.reasons);
+ assert.deepEqual(result.reasons,['Great Wi-Fi','Quiet atmosphere','A calmer cafe']);
+ assert(!result.reasons.includes('Plenty of sockets'));
+ assert(!result.reasons.includes('Comfortable seating'));
+ assert(!result.reasons.includes('Excellent coffee'));
+ assert.equal(result.components.seatCount,undefined);
+});
+
+test('city and active filters remain authoritative before Match ranking',()=>{
+ const cafes=[
+  {...perfect,name:'Exeter cafe',city:'Exeter',studyScore:80,isIndependent:true},
+  {...perfect,name:'Cambridge cafe',city:'Cambridge',studyScore:90,isIndependent:true},
+  {...perfect,name:'Exeter chain',city:'Exeter',studyScore:95,isIndependent:false},
+ ];
+ const matches=new Map(cafes.map(c=>[c,calculateMatch(c,prefs)]));
+ for(const city of ['Exeter','Cambridge']){
+  const filtered=filterCafes(cafes,{...createDefaultFilters(),cafeType:'independent'},{city,search:'',coordinates:null,now:null});
+  assert.deepEqual(rankCafes(filtered,matches).map(c=>c.name),[`${city} cafe`]);
+ }
 });

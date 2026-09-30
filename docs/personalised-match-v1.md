@@ -1,5 +1,7 @@
 # Personalised Match v1
 
+The first-time onboarding extension saves guest answers and replaces automatic preference-sheet prompting with a full-screen first-run journey. Match scores and Best Match ranking require a signed-in account with loaded preferences. See [onboarding.md](onboarding.md) for guest persistence and account transfer, and [personalised-match-final-verification.md](personalised-match-final-verification.md) for the current verification pass. The report below records the original Match v1 implementation.
+
 Implemented from the existing accounts/profiles architecture. No commit or push. Study Score v1, its SQL trigger, cafe records, map pins and filters are unchanged.
 
 ## Files

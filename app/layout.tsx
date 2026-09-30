@@ -13,7 +13,8 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
   },
   icons: {
-    icon: [{ url: "/favicon.ico", sizes: "any", type: "image/x-icon" }],
+    icon: [{ url: "/brand/hot-seats.svg", sizes: "any", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
   other: {
     "apple-mobile-web-app-capable": "yes",

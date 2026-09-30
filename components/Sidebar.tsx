@@ -1,5 +1,6 @@
 "use client";
 
+import { BrandLockup } from "./BrandMark";
 import { Search } from "lucide-react";
 import { Cafe } from "@/types/cafe";
 import { useStudyPreferences } from "./StudyPreferencesProvider";
@@ -33,15 +34,13 @@ export default function Sidebar({
   onSearchChange: (value: string) => void;
   onOpenAccount: () => void;
 } & QuickFiltersProps) {
-  const { matches, preferences } = useStudyPreferences();
+  const { matches } = useStudyPreferences();
   const nearbyCafes = useMemo(() => rankCafes(cafes, matches), [cafes, matches]);
   return (
     <div className="h-full w-96 overflow-y-auto border-r border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)]">
       <div className="border-b border-[color:var(--hs-border)] p-4">
         <div className="flex items-center justify-between gap-3">
-        <h1 className="text-[32px] font-extrabold leading-none tracking-[-0.06em] text-[color:var(--hs-ink)]">
-          HOT SEATS
-        </h1>
+        <h1 className="min-w-0"><BrandLockup /></h1>
         <AccountButton onClick={onOpenAccount} />
         </div>
 
@@ -70,7 +69,7 @@ export default function Sidebar({
       </div>
 
       <div className="space-y-3 p-4">
-        <p className="text-xs text-[color:var(--hs-text-secondary)]">{preferences ? "Best match for you" : "Highest Study Score"}</p>
+        <p className="text-xs text-[color:var(--hs-text-secondary)]">{matches.size ? "Best match for you" : "Highest Study Score"}</p>
         <WalkingLocationAction />
         {cafes.length === 0 && <p className="text-sm leading-6 text-[color:var(--hs-text-secondary)]">No matching workspaces in {city} yet. Try clearing your filters or choosing another city.</p>}
         {nearbyCafes.map((cafe) => (

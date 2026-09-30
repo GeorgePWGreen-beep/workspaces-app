@@ -159,7 +159,7 @@ export default function WorkspacesSheet({
   onSelectCafe,
   onDismissed,
 }: WorkspacesSheetProps) {
-  const { matches, preferences } = useStudyPreferences();
+  const { matches } = useStudyPreferences();
   const nearbyCafes = useMemo(() => rankCafes(cafes, matches), [cafes, matches]);
   const sheetRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -545,7 +545,7 @@ export default function WorkspacesSheet({
                   <span aria-hidden="true"> · </span>
                   <button type="button" onClick={onOpenFilters} className="min-h-11 font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Filters</button>
                 </p>
-                <p className="mb-2 text-xs text-[color:var(--hs-text-secondary)]">{preferences ? "Best match for you" : "Highest Study Score"}</p>
+                <p className="mb-2 text-xs text-[color:var(--hs-text-secondary)]">{matches.size ? "Best match for you" : "Highest Study Score"}</p>
                 <WalkingLocationAction />
               </div>
 

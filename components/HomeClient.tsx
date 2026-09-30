@@ -1,9 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { BrandLockup } from "./BrandMark";
 import { X } from "lucide-react";
 import { StudyPreferencesProvider, useStudyPreferences } from "./StudyPreferencesProvider";
 import StudyPreferencesSheet from "./StudyPreferencesSheet";
+import OnboardingFlow from "./onboarding/OnboardingFlow";
+import { ONBOARDING_COMPLETE_KEY, ONBOARDING_STARTED_KEY, readOnboardingState } from "@/lib/onboarding";
 import CafeDetails from "@/components/CafeDetails";
 import CityChooser from "@/components/CityChooser";
 import { LocationProvider, useLocation } from "@/components/LocationProvider";
@@ -12,7 +15,7 @@ import FiltersSheet from "@/components/FiltersSheet";
 import AccountSheet, { type AccountNotice } from "@/components/AccountSheet";
 import { createDefaultFilters, type CafeFilters } from "@/types/filters";
 import { filterCafes } from "@/utils/filters";
-import { CITY_STORAGE_KEY, NEARBY_GUIDANCE_KEY, isCity, type City } from "@/lib/cities";
+import { CITY_STORAGE_KEY, NEARBY_GUIDANCE_KEY, type City } from "@/lib/cities";
 import FloatingDock, { type DockSheetMode } from "@/components/FloatingDock";
 import FloatingSearch from "@/components/FloatingSearch";
 import Map from "@/components/Map";
@@ -28,8 +31,11 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
   const preferences = useStudyPreferences();
   const [city, setCity] = useState<City | null>(null);
   const [storageReady, setStorageReady] = useState(false);
+  const [onboardingNeeded, setOnboardingNeeded] = useState<boolean | null>(null);
+  const [mapReady, setMapReady] = useState(false);
   const [choosingCity, setChoosingCity] = useState(false);
   const pendingGuidance = useRef(true);
+  const onboardingInProgress = useRef(false);
   const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
   const [sheetMode, setSheetMode] = useState<DockSheetMode | "cafe" | null>(null);
   const [search, setSearch] = useState("");
@@ -45,9 +51,15 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
       try {
-        const savedCity = window.localStorage.getItem(CITY_STORAGE_KEY);
-        if (isCity(savedCity)) setCity(savedCity);
-        pendingGuidance.current = window.localStorage.getItem(NEARBY_GUIDANCE_KEY) !== "seen";
+        const saved = readOnboardingState(window.localStorage);
+        onboardingInProgress.current = window.localStorage.getItem(ONBOARDING_STARTED_KEY) === "true";
+        setCity(saved.city);
+        pendingGuidance.current = !saved.nearbySeen;
+        if (saved.complete) {
+          setOnboardingNeeded(false);
+          window.localStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
+          if (saved.nearbySeen) window.localStorage.setItem(NEARBY_GUIDANCE_KEY, "seen");
+        }
       } catch { /* Storage may be disabled; selection still works this visit. */ }
       setStorageReady(true);
       const url = new URL(window.location.href);
@@ -61,14 +73,47 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
     return () => window.cancelAnimationFrame(frame);
   }, []);
 
-  const handleMapReady = useCallback(() => {
-    if (!pendingGuidance.current || !window.matchMedia("(max-width: 767px)").matches) return;
-    pendingGuidance.current = false;
-    setSheetMode((current) => current ?? "nearby");
-    try { window.localStorage.setItem(NEARBY_GUIDANCE_KEY, "seen"); } catch { /* Optional persistence. */ }
-  }, []);
+  useEffect(() => {
+    if (!storageReady || onboardingNeeded !== null || preferences.status === "loading") return;
+    const frame = window.requestAnimationFrame(() => {
+      const returning = preferences.preferences !== null && !onboardingInProgress.current;
+      setOnboardingNeeded(!returning);
+      if (returning) {
+        pendingGuidance.current = false;
+        try {
+          window.localStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
+          window.localStorage.setItem(NEARBY_GUIDANCE_KEY, "seen");
+        } catch { /* Optional persistence. */ }
+      }
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [storageReady, onboardingNeeded, preferences.status, preferences.preferences]);
+
+  const handleMapReady = useCallback(() => setMapReady(true), []);
+  useEffect(() => {
+    if (!mapReady || onboardingNeeded || accountOpen || filtersOpen || choosingCity || preferences.editorOpen) return;
+    const frame = window.requestAnimationFrame(() => {
+      if (!pendingGuidance.current) return;
+      pendingGuidance.current = false;
+      // Desktop already displays Nearby in its persistent sidebar.
+      if (window.matchMedia("(max-width: 767px)").matches) setSheetMode(current => current ?? "nearby");
+      try { window.localStorage.setItem(NEARBY_GUIDANCE_KEY, "seen"); } catch { /* Once per visit if storage is disabled. */ }
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [mapReady, onboardingNeeded, accountOpen, filtersOpen, choosingCity, preferences.editorOpen]);
+
+  const finishOnboarding = () => {
+    if (!city) return;
+    preferences.closeEditor();
+    setOnboardingNeeded(false);
+    try {
+      window.localStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
+      window.localStorage.removeItem(ONBOARDING_STARTED_KEY);
+    } catch { /* Onboarding still completes for this visit. */ }
+  };
 
   const chooseCity = (nextCity: City) => {
+    setMapReady(false);
     setCity(nextCity);
     setChoosingCity(false);
     setSelectedCafe(null);
@@ -128,6 +173,12 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
     setSelectedCafe(null);
     setSheetMode(null);
   }, []);
+
+  if (!storageReady || onboardingNeeded === null) return <main className="grid h-dvh place-items-center bg-[color:var(--hs-bg)]"><div className="flex flex-col items-center gap-4"><BrandLockup compact /><p role="status" className="text-sm text-[color:var(--hs-text-secondary)]">Getting Hot Seats ready...</p></div></main>;
+  if (onboardingNeeded) return <OnboardingFlow city={city} onChooseCity={nextCity => {
+    try { window.localStorage.setItem(ONBOARDING_STARTED_KEY, "true"); } catch { /* Optional persistence. */ }
+    chooseCity(nextCity);
+  }} onFinish={finishOnboarding} />;
 
   if (!city) return (
     <main className="min-h-dvh bg-[color:var(--hs-bg)]">
