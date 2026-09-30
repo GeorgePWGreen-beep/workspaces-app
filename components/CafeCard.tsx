@@ -12,8 +12,6 @@ import {
   Wallet,
   Wifi,
 } from "lucide-react";
-import { useStudyPreferences } from "./StudyPreferencesProvider";
-import MatchBadge from "./MatchBadge";
 import { Cafe } from "@/types/cafe";
 import { CAFE_IMAGE_PLACEHOLDER } from "@/utils/cafeImages";
 import { getStudyScoreColor } from "@/utils/studyScore";
@@ -36,19 +34,30 @@ interface CafeCardImageProps {
 }
 
 function CafeCardImage({ src, cafeName }: CafeCardImageProps) {
-  const [imageSource, setImageSource] = useState<string | null>(
-    src || CAFE_IMAGE_PLACEHOLDER,
-  );
+  const requestedSource = src || CAFE_IMAGE_PLACEHOLDER;
 
   return (
-    <div className="relative h-full w-[100px] shrink-0 overflow-hidden rounded-[18px] bg-[color:var(--hs-canvas)] max-[374px]:w-[90px]">
+    <CafeCardImageContent
+      key={`${requestedSource}:${cafeName}`}
+      src={requestedSource}
+      cafeName={cafeName}
+    />
+  );
+}
+
+function CafeCardImageContent({ src, cafeName }: CafeCardImageProps) {
+  const [imageSource, setImageSource] = useState<string | null>(src);
+
+  return (
+    <div className="relative h-full w-[100px] shrink-0 overflow-hidden rounded-[18px] border border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)] max-[374px]:w-[90px]">
       {imageSource && (
         <Image
+          key={imageSource}
           fill
           src={imageSource}
-          alt={`Interior of ${cafeName}`}
+          alt={`Exterior of ${cafeName}`}
           sizes="(max-width: 374px) 90px, 100px"
-          className="object-cover"
+          className="object-cover opacity-90 brightness-[0.97] saturate-[0.94] transition-[opacity,filter] duration-150"
           onError={() =>
             setImageSource((currentSource) =>
               currentSource === CAFE_IMAGE_PLACEHOLDER
@@ -86,8 +95,6 @@ export default function CafeCard({
   onClick,
   variant = "sidebar",
 }: CafeCardProps) {
-  const { matches } = useStudyPreferences();
-  const hasMatch = matches.has(cafe);
   const { wifiTone, noiseTone, socketsTone } = getFeatureTones(cafe);
   const now = useCafeTime();
   const openingStatus = cafe.weeklyOpeningHours && now
@@ -125,8 +132,6 @@ export default function CafeCard({
           </div>
         </div>
 
-        <p className="mt-3 text-sm font-semibold">Study Score {cafe.studyScore}</p>
-        <MatchBadge cafe={cafe} />
         <div className="mt-3 flex flex-wrap gap-2">
           <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[color:var(--hs-canvas)] px-3 text-sm font-medium text-[color:var(--hs-muted)]">
             <Wallet aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2} />
@@ -167,7 +172,7 @@ export default function CafeCard({
           onClick();
         }
       }}
-      className={`hs-cafe-list-card flex ${hasMatch ? closedLabel ? "min-h-[180px]" : "min-h-[160px]" : closedLabel ? "h-[156px]" : "h-[136px]"} cursor-pointer items-stretch gap-1 rounded-[22px] p-2 text-left transition-[transform,box-shadow,ring] duration-150 active:scale-[0.99] motion-reduce:transform-none ${
+      className={`hs-cafe-list-card flex ${closedLabel ? "h-[156px]" : "h-[136px]"} cursor-pointer items-stretch gap-2 rounded-[22px] p-2 text-left transition-[transform,box-shadow,ring] duration-150 active:scale-[0.99] motion-reduce:transform-none ${
         selected ? "ring-2 ring-[color:var(--hs-green)]" : ""
       }`}
     >
@@ -178,7 +183,6 @@ export default function CafeCard({
           {cafe.name}
         </h2>
 
-        <MatchBadge cafe={cafe} />
         <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[14px] font-medium text-[color:var(--hs-text-secondary)] max-[374px]:gap-x-1 max-[374px]:text-[13px]">
           <Star aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.9} />
           <span>{cafe.rating}</span>
