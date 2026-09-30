@@ -57,7 +57,7 @@ function CafeCardImageContent({ src, cafeName }: CafeCardImageProps) {
           src={imageSource}
           alt={`Exterior of ${cafeName}`}
           sizes="(max-width: 374px) 90px, 100px"
-          className="object-cover"
+          className="object-cover opacity-90 brightness-[0.97] saturate-[0.94] transition-[opacity,filter] duration-150"
           onError={() =>
             setImageSource((currentSource) =>
               currentSource === CAFE_IMAGE_PLACEHOLDER
