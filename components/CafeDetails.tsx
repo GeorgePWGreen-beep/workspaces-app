@@ -160,30 +160,31 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
     <div
       className="overflow-hidden rounded-t-[32px] bg-[color:var(--hs-bg)] text-[color:var(--hs-text)]"
     >
-      <CafeHeroImage src={cafe.image} cafeName={cafe.name} />
+      <div className="relative">
+        <CafeHeroImage src={cafe.image} cafeName={cafe.name} />
+        <div className="absolute bottom-0 right-5 z-10 w-[112px] translate-y-[65%] min-[390px]:w-[120px]">
+          <StudyScore score={cafe.studyScore} />
+        </div>
+      </div>
 
-      <div className="px-5 pb-8 pt-5">
-        <div className="flex items-start justify-between gap-3">
-          <h2 className="min-w-0 flex-1 text-[28px] font-extrabold leading-[1.05] tracking-[-0.035em] text-[color:var(--hs-text)] max-[374px]:text-[26px]">
+      <div className="px-5 pb-8 pt-2.5">
+        <div className="min-w-0 pr-[124px] min-[390px]:pr-[132px]">
+          <h2 className="break-words text-[28px] font-extrabold leading-[1.05] tracking-[-0.035em] text-[color:var(--hs-text)] max-[374px]:text-[26px]">
             {cafe.name}
           </h2>
 
-          <div className="-mt-1 shrink-0">
-            <StudyScore score={cafe.studyScore} size={96} />
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-[14px] font-medium text-[color:var(--hs-text-secondary)]">
+            <Star
+              aria-hidden="true"
+              className="h-4 w-4 fill-amber-400 text-amber-500"
+              strokeWidth={1.9}
+            />
+            <span className="font-semibold">{cafe.rating}</span>
+            <span aria-hidden="true" className="h-4 border-l border-[color:var(--hs-border)]" />
+            <Wallet aria-hidden="true" className="h-4 w-4" strokeWidth={1.9} />
+            <span>{cafe.price}</span>
+            <WalkTime coords={cafe.coords} />
           </div>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-[14px] font-medium text-[color:var(--hs-text-secondary)]">
-          <Star
-            aria-hidden="true"
-            className="h-4 w-4 fill-amber-400 text-amber-500"
-            strokeWidth={1.9}
-          />
-          <span className="font-semibold">{cafe.rating}</span>
-          <span aria-hidden="true" className="h-4 border-l border-[color:var(--hs-border)]" />
-          <Wallet aria-hidden="true" className="h-4 w-4" strokeWidth={1.9} />
-          <span>{cafe.price}</span>
-          <WalkTime coords={cafe.coords} />
         </div>
 
         <MatchBadge cafe={cafe} details />
