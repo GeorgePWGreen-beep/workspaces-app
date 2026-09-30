@@ -34,17 +34,28 @@ interface CafeCardImageProps {
 }
 
 function CafeCardImage({ src, cafeName }: CafeCardImageProps) {
-  const [imageSource, setImageSource] = useState<string | null>(
-    src || CAFE_IMAGE_PLACEHOLDER,
-  );
+  const requestedSource = src || CAFE_IMAGE_PLACEHOLDER;
 
   return (
-    <div className="relative h-full w-[100px] shrink-0 overflow-hidden rounded-[18px] bg-[color:var(--hs-canvas)] max-[374px]:w-[90px]">
+    <CafeCardImageContent
+      key={`${requestedSource}:${cafeName}`}
+      src={requestedSource}
+      cafeName={cafeName}
+    />
+  );
+}
+
+function CafeCardImageContent({ src, cafeName }: CafeCardImageProps) {
+  const [imageSource, setImageSource] = useState<string | null>(src);
+
+  return (
+    <div className="relative h-full w-[100px] shrink-0 overflow-hidden rounded-[18px] border border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)] max-[374px]:w-[90px]">
       {imageSource && (
         <Image
+          key={imageSource}
           fill
           src={imageSource}
-          alt={`Interior of ${cafeName}`}
+          alt={`Exterior of ${cafeName}`}
           sizes="(max-width: 374px) 90px, 100px"
           className="object-cover"
           onError={() =>
@@ -161,7 +172,7 @@ export default function CafeCard({
           onClick();
         }
       }}
-      className={`hs-cafe-list-card flex ${closedLabel ? "h-[156px]" : "h-[136px]"} cursor-pointer items-stretch gap-1 rounded-[22px] p-2 text-left transition-[transform,box-shadow,ring] duration-150 active:scale-[0.99] motion-reduce:transform-none ${
+      className={`hs-cafe-list-card flex ${closedLabel ? "h-[156px]" : "h-[136px]"} cursor-pointer items-stretch gap-2 rounded-[22px] p-2 text-left transition-[transform,box-shadow,ring] duration-150 active:scale-[0.99] motion-reduce:transform-none ${
         selected ? "ring-2 ring-[color:var(--hs-green)]" : ""
       }`}
     >
