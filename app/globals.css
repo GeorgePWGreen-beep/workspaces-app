@@ -5,6 +5,12 @@
   --hs-text: #1c211d;
   --hs-text-secondary: #4f5851;
   --hs-text-tertiary: #6b746d;
+  /* Identity only. Product selection, suitability and success remain sage. */
+  --hs-brand-red: #b64b43;
+  --hs-brand-red-hover: #9f4039;
+  --hs-brand-red-soft: #fbf1ef;
+  --hs-brand-red-border: #e8c7c1;
+  --hs-brand-on-red: #fffcf8;
   --hs-green: #2f7138;
   --hs-green-deep: #255d2f;
   --hs-green-soft: #eaf3e9;
@@ -31,7 +37,7 @@
   --hs-sage: var(--hs-green);
   --hs-sage-dark: var(--hs-green-deep);
   --hs-sage-soft: var(--hs-green-soft);
-  --hs-wordmark: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --hs-wordmark: var(--hs-font-system);
 
   --background: var(--hs-canvas);
   --foreground: var(--hs-ink);
@@ -53,6 +59,10 @@
   --color-hs-sage: var(--hs-sage);
   --color-hs-sage-dark: var(--hs-sage-dark);
   --color-hs-sage-soft: var(--hs-sage-soft);
+  --color-hs-brand: var(--hs-brand-red);
+  --color-hs-brand-hover: var(--hs-brand-red-hover);
+  --color-hs-brand-soft: var(--hs-brand-red-soft);
+  --color-hs-brand-border: var(--hs-brand-red-border);
   --font-sans: var(--hs-font-system);
   --font-brand: var(--hs-wordmark);
 }

@@ -1,11 +1,16 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { BrandLockup } from "./BrandMark";
+import { Search, UsersRound } from "lucide-react";
 import { Cafe } from "@/types/cafe";
+import { useStudyPreferences } from "./StudyPreferencesProvider";
+import { rankCafes } from "@/utils/matchV1";
+import { useMemo } from "react";
 import CafeCard from "./CafeCard";
 import QuickFilters, { type QuickFiltersProps } from "./QuickFilters";
 import type { City } from "@/lib/cities";
 import { WalkingLocationAction } from "./LocationProvider";
+import AccountButton from "./AccountButton";
 
 export default function Sidebar({
   city,
@@ -18,6 +23,8 @@ export default function Sidebar({
   filters,
   onChange,
   onOpenFilters,
+  onOpenAccount,
+  onOpenFriends,
 }: {
   city: City;
   onChangeCity: () => void;
@@ -26,13 +33,19 @@ export default function Sidebar({
   setSelectedCafe: (cafe: Cafe) => void;
   search: string;
   onSearchChange: (value: string) => void;
+  onOpenAccount: () => void;
+  onOpenFriends: () => void;
 } & QuickFiltersProps) {
+  const { matches } = useStudyPreferences();
+  const nearbyCafes = useMemo(() => rankCafes(cafes, matches), [cafes, matches]);
   return (
     <div className="h-full w-96 overflow-y-auto border-r border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)]">
       <div className="border-b border-[color:var(--hs-border)] p-4">
-        <h1 className="text-[32px] font-extrabold leading-none tracking-[-0.06em] text-[color:var(--hs-ink)]">
-          HOT SEATS
-        </h1>
+        <div className="flex items-center justify-between gap-3">
+        <h1 className="min-w-0"><BrandLockup /></h1>
+        <AccountButton onClick={onOpenAccount} />
+        </div>
+        <button type="button" onClick={onOpenFriends} className="mt-3 flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-[color:var(--hs-green-deep)] hover:bg-[color:var(--hs-green-soft)]"><UsersRound aria-hidden="true" className="h-4 w-4" />Friends</button>
 
         <p className="mb-5 mt-2 text-[color:var(--hs-muted)]">
           Study spots in {city}. <button type="button" onClick={onChangeCity} className="min-h-11 text-sm font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Change city</button>
@@ -59,9 +72,10 @@ export default function Sidebar({
       </div>
 
       <div className="space-y-3 p-4">
+        <p className="text-xs text-[color:var(--hs-text-secondary)]">{matches.size ? "Best match for you" : "Highest Study Score"}</p>
         <WalkingLocationAction />
         {cafes.length === 0 && <p className="text-sm leading-6 text-[color:var(--hs-text-secondary)]">No matching workspaces in {city} yet. Try clearing your filters or choosing another city.</p>}
-        {cafes.map((cafe) => (
+        {nearbyCafes.map((cafe) => (
           <CafeCard
             key={cafe.name}
             cafe={cafe}

@@ -2,8 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { animate, motion, useMotionValue } from "framer-motion";
-import { Bookmark, UsersRound, type LucideIcon } from "lucide-react";
+import { Bookmark, type LucideIcon } from "lucide-react";
+import FriendsPanel from "./FriendsPanel";
 import { Cafe } from "@/types/cafe";
+import { useStudyPreferences } from "./StudyPreferencesProvider";
+import { rankCafes } from "@/utils/matchV1";
+import { useMemo } from "react";
 import CafeCard from "./CafeCard";
 import CafeDetails from "./CafeDetails";
 import type { City } from "@/lib/cities";
@@ -19,6 +23,7 @@ interface WorkspacesSheetProps {
   selectedCafe: Cafe | null;
   onSelectCafe: (cafe: Cafe) => void;
   onDismissed: () => void;
+  onFriendsAuth: (mode: "signin" | "signup") => void;
 }
 
 type SheetState = "closed" | "collapsed" | "expanded";
@@ -155,10 +160,18 @@ export default function WorkspacesSheet({
   selectedCafe,
   onSelectCafe,
   onDismissed,
+  onFriendsAuth,
 }: WorkspacesSheetProps) {
-  const nearbyCafes = [...cafes].sort(
-    (firstCafe, secondCafe) => secondCafe.studyScore - firstCafe.studyScore,
-  );
+  const [desktop, setDesktop] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    const update = () => setDesktop(media.matches);
+    const frame = requestAnimationFrame(update);
+    media.addEventListener("change", update);
+    return () => { cancelAnimationFrame(frame); media.removeEventListener("change", update); };
+  }, []);
+  const { matches } = useStudyPreferences();
+  const nearbyCafes = useMemo(() => rankCafes(cafes, matches), [cafes, matches]);
   const sheetRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const dragSessionRef = useRef<DragSession | null>(null);
@@ -297,7 +310,7 @@ export default function WorkspacesSheet({
       window.removeEventListener("resize", updateOffsets);
       window.visualViewport?.removeEventListener("resize", updateOffsets);
     };
-  }, [isSheetVisible, sheetState]);
+  }, [desktop, isSheetVisible, sheetState]);
 
   useEffect(() => {
     const sheet = sheetRef.current;
@@ -332,7 +345,7 @@ export default function WorkspacesSheet({
         capture: true,
       });
     };
-  }, [sheetState]);
+  }, [desktop, sheetState]);
 
   const isInteractiveTarget = (target: EventTarget | null) => {
     return target instanceof Element && Boolean(target.closest(INTERACTIVE_SELECTOR));
@@ -467,6 +480,11 @@ export default function WorkspacesSheet({
 
   const isVisible = isSheetVisible && (sheetState !== "closed" || isClosing);
 
+  if (desktop && mode === "friends") return (
+    <aside aria-label="Friends" className="fixed bottom-4 right-4 top-4 z-50 w-[400px] overflow-y-auto rounded-[28px] border border-[color:var(--hs-border)] bg-[color:var(--hs-bg)] py-5 shadow-xl" style={{ visibility: isObscured ? "hidden" : "visible" }}>
+      <FriendsPanel onAuth={onFriendsAuth} onClose={closeSheet} />
+    </aside>
+  );
   if (!isVisible) return null;
 
   return (
@@ -526,11 +544,9 @@ export default function WorkspacesSheet({
               icon={Bookmark}
             />
           ) : mode === "friends" ? (
-            <EmptySheet
-              title="Friends"
-              message="See where your friends like to work."
-              icon={UsersRound}
-            />
+            <div onFocusCapture={() => { if (sheetState === "collapsed") animateToState("expanded"); }}>
+              <FriendsPanel onAuth={onFriendsAuth} onClose={closeSheet} />
+            </div>
           ) : (
             <div className="px-5 pb-7 pt-1">
               <div className="mb-4">
@@ -543,6 +559,7 @@ export default function WorkspacesSheet({
                   <span aria-hidden="true"> · </span>
                   <button type="button" onClick={onOpenFilters} className="min-h-11 font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Filters</button>
                 </p>
+                <p className="mb-2 text-xs text-[color:var(--hs-text-secondary)]">{matches.size ? "Best match for you" : "Highest Study Score"}</p>
                 <WalkingLocationAction />
               </div>
 

@@ -49,7 +49,7 @@ function CafeCardImageContent({ src, cafeName }: CafeCardImageProps) {
   const [imageSource, setImageSource] = useState<string | null>(src);
 
   return (
-    <div className="relative h-full w-[100px] shrink-0 overflow-hidden rounded-[18px] border border-[color:var(--hs-border)] bg-white max-[374px]:w-[90px]">
+    <div className="relative h-full w-[100px] shrink-0 overflow-hidden rounded-[18px] border border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)] max-[374px]:w-[90px]">
       {imageSource && (
         <Image
           key={imageSource}
@@ -57,7 +57,7 @@ function CafeCardImageContent({ src, cafeName }: CafeCardImageProps) {
           src={imageSource}
           alt={`Exterior of ${cafeName}`}
           sizes="(max-width: 374px) 90px, 100px"
-          className="object-cover brightness-[1.04] contrast-[0.93] saturate-[0.96] transition-[filter] duration-150"
+          className="object-cover brightness-[1.04] contrast-[0.93] saturate-[0.96] transition-[opacity,filter] duration-150"
           onError={() =>
             setImageSource((currentSource) =>
               currentSource === CAFE_IMAGE_PLACEHOLDER
@@ -183,7 +183,7 @@ export default function CafeCard({
           {cafe.name}
         </h2>
 
-        <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[14px] font-medium text-[color:var(--hs-text-secondary)] max-[374px]:gap-x-1 max-[374px]:text-[13px]">
+        <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[14px] font-medium leading-4 text-[color:var(--hs-text-secondary)] max-[374px]:gap-x-1 max-[374px]:text-[13px]">
           <Star aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={1.9} />
           <span>{cafe.rating}</span>
           <span aria-hidden="true" className="h-3 border-l border-[color:var(--hs-border)]" />
@@ -191,11 +191,11 @@ export default function CafeCard({
           <WalkTime coords={cafe.coords} compact />
         </div>
 
-        <div className="mt-2 flex gap-1 overflow-hidden">
-          <span className="hs-cafe-feature-pill inline-flex h-7 items-center rounded-full px-2 text-[12px] font-medium text-[color:var(--hs-text-secondary)]">
+        <div className="mt-1 flex gap-1 overflow-hidden">
+          <span className="hs-cafe-feature-pill inline-flex h-6 items-center rounded-full px-2 text-[12px] font-medium text-[color:var(--hs-text-secondary)]">
             <span className="whitespace-nowrap">{cafe.wifi}</span>
           </span>
-          <span className="hs-cafe-feature-pill inline-flex h-7 items-center rounded-full px-2 text-[12px] font-medium text-[color:var(--hs-text-secondary)] max-[374px]:hidden">
+          <span className="hs-cafe-feature-pill inline-flex h-6 items-center rounded-full px-2 text-[12px] font-medium text-[color:var(--hs-text-secondary)] max-[374px]:hidden">
             <span className="whitespace-nowrap">{cafe.noise}</span>
           </span>
         </div>

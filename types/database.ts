@@ -1,5 +1,8 @@
+import type { StudyPreferencesRow, StudyPreferences } from "./studyPreferences";
 import type { City } from "@/lib/cities";
 import type { WeeklyOpeningHours } from "./openingHours";
+import type { Profile, PublicProfile } from "./profile";
+import type { Friendship, FriendshipProjection } from "./friends";
 
 export type Json =
   | string
@@ -12,6 +15,24 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      friendships: {
+        Row: Friendship;
+        Insert: Pick<Friendship, "requester_id" | "addressee_id">;
+        Update: { status: "accepted" };
+        Relationships: [];
+      };
+      user_study_preferences: {
+        Row: StudyPreferencesRow;
+        Insert: StudyPreferences & { user_id: string };
+        Update: Partial<StudyPreferences>;
+        Relationships: [];
+      };
+      profiles: {
+        Row: Profile;
+        Insert: Pick<Profile, "id" | "username"> & Partial<Omit<Profile, "id" | "username">>;
+        Update: Partial<Pick<Profile, "username" | "display_name" | "avatar_url">>;
+        Relationships: [];
+      };
       cafes: {
         Row: {
           city: City;
@@ -76,7 +97,11 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      get_friendships: { Args: Record<string, never>; Returns: FriendshipProjection[] };
+      is_username_available: { Args: { candidate: string }; Returns: boolean };
+      get_public_profile: { Args: { requested_username: string }; Returns: PublicProfile[] };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
