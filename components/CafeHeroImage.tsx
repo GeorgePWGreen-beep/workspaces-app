@@ -33,21 +33,23 @@ function CafeHeroImageContent({ src, cafeName }: CafeHeroImageProps) {
   };
 
   return (
-    <div className="relative aspect-[16/9] w-full overflow-hidden bg-[color:var(--hs-canvas)]">
-      {imageSource && (
-        <Image
-          key={imageSource}
-          fill
-          src={imageSource}
-          alt={`Exterior of ${cafeName}`}
-          sizes="(max-width: 767px) 100vw, 640px"
-          className={`object-cover transition-opacity duration-200 ease-out motion-reduce:transition-none ${
-            isLoaded ? "opacity-100" : "opacity-0"
-          }`}
-          onLoad={() => setIsLoaded(true)}
-          onError={handleError}
-        />
-      )}
+    <div className="px-3 pt-3">
+      <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[24px] border border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)] shadow-[0_8px_24px_rgba(20,25,21,0.06)]">
+        {imageSource && (
+          <Image
+            key={imageSource}
+            fill
+            src={imageSource}
+            alt={`Exterior of ${cafeName}`}
+            sizes="(max-width: 767px) calc(100vw - 24px), 616px"
+            className={`object-cover object-center transition-opacity duration-200 ease-out motion-reduce:transition-none ${
+              isLoaded ? "opacity-100" : "opacity-0"
+            }`}
+            onLoad={() => setIsLoaded(true)}
+            onError={handleError}
+          />
+        )}
+      </div>
     </div>
   );
 }
