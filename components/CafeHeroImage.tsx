@@ -39,7 +39,7 @@ function CafeHeroImageContent({ src, cafeName }: CafeHeroImageProps) {
           key={imageSource}
           fill
           src={imageSource}
-          alt={`Interior of ${cafeName}`}
+          alt={`Exterior of ${cafeName}`}
           sizes="(max-width: 767px) 100vw, 640px"
           className={`object-cover transition-opacity duration-200 ease-out motion-reduce:transition-none ${
             isLoaded ? "opacity-100" : "opacity-0"
