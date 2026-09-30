@@ -49,7 +49,7 @@ function CafeCardImageContent({ src, cafeName }: CafeCardImageProps) {
   const [imageSource, setImageSource] = useState<string | null>(src);
 
   return (
-    <div className="relative h-full w-[100px] shrink-0 overflow-hidden rounded-[18px] border border-[color:var(--hs-border)] bg-[color:var(--hs-canvas)] max-[374px]:w-[90px]">
+    <div className="relative h-full w-[100px] shrink-0 overflow-hidden rounded-[18px] border border-[color:var(--hs-border)] bg-white max-[374px]:w-[90px]">
       {imageSource && (
         <Image
           key={imageSource}
@@ -57,7 +57,7 @@ function CafeCardImageContent({ src, cafeName }: CafeCardImageProps) {
           src={imageSource}
           alt={`Exterior of ${cafeName}`}
           sizes="(max-width: 374px) 90px, 100px"
-          className="object-cover opacity-90 brightness-[0.97] saturate-[0.94] transition-[opacity,filter] duration-150"
+          className="object-cover brightness-[1.04] contrast-[0.93] saturate-[0.96] transition-[filter] duration-150"
           onError={() =>
             setImageSource((currentSource) =>
               currentSource === CAFE_IMAGE_PLACEHOLDER
