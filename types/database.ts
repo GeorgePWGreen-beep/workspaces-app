@@ -15,6 +15,12 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      saved_cafes: {
+        Row: { id: string; user_id: string; cafe_id: string; created_at: string };
+        Insert: { user_id: string; cafe_id: string };
+        Update: never;
+        Relationships: [];
+      };
       friendships: {
         Row: Friendship;
         Insert: Pick<Friendship, "requester_id" | "addressee_id">;
