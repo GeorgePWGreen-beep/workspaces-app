@@ -11,6 +11,8 @@ export function mapCafeRowToCafe(row: CafeRow): Cafe {
   const city = isCity(row.city) ? row.city : getLegacyCity(row.slug, row.latitude, row.longitude);
   if (!city) throw new Error(`Cafe ${row.slug} needs a verified city. Apply the city migration after reviewing this record.`);
   return {
+    id: row.id,
+    slug: row.slug,
     city,
     // Missing before the independence migration, or unclassified, stays unknown.
     isIndependent: typeof row.is_independent === "boolean" ? row.is_independent : null,

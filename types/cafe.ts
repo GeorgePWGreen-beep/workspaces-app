@@ -2,6 +2,10 @@ import type { City } from "../lib/cities";
 import type { WeeklyOpeningHours } from "./openingHours";
 
 export type Cafe = {
+  // Database identity is absent only in the development fallback dataset.
+  id?: string;
+  slug?: string;
+  address?: string;
   city: City;
   isIndependent: boolean | null;
   seatCount: number | null;

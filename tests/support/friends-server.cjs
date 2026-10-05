@@ -55,6 +55,11 @@ function identity(req) {
       else if (url.pathname === '/rest/v1/rpc/get_friendships') rows = (await db.query('select * from get_friendships() order by created_at desc,id offset $1 limit $2', [Number(url.searchParams.get('offset') || 0), Number(url.searchParams.get('limit') || 100)])).rows;
       else if (url.pathname === '/rest/v1/profiles') rows = (await db.query('select * from profiles')).rows;
       else if (url.pathname === '/rest/v1/user_study_preferences') rows = (await db.query('select * from user_study_preferences')).rows;
+      else if (url.pathname === '/rest/v1/saved_cafes') {
+        if (req.method === 'POST') rows = (await db.query('insert into saved_cafes(user_id,cafe_id) values($1,$2) returning *', [body.user_id, body.cafe_id])).rows;
+        else if (req.method === 'DELETE') rows = (await db.query('delete from saved_cafes where user_id=$1 and cafe_id=$2 returning *', [url.searchParams.get('user_id')?.replace(/^eq\./, ''), url.searchParams.get('cafe_id')?.replace(/^eq\./, '')])).rows;
+        else rows = (await db.query('select cafe_id from saved_cafes where user_id=$1 order by created_at desc,cafe_id offset $2 limit $3', [url.searchParams.get('user_id')?.replace(/^eq\./, ''), Number(url.searchParams.get('offset') || 0), Number(url.searchParams.get('limit') || 100)])).rows;
+      }
       else if (url.pathname === '/rest/v1/friendships') {
         if (req.method === 'POST') rows = (await db.query('insert into friendships(requester_id,addressee_id) values($1,$2) returning id', [body.requester_id, body.addressee_id])).rows;
         else {

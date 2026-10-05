@@ -25,7 +25,7 @@ interface CafeCardProps {
   cafe: Cafe;
   selected: boolean;
   onClick: () => void;
-  variant?: "sidebar" | "sheet";
+  variant?: "sidebar" | "sheet" | "saved";
 }
 
 interface CafeCardImageProps {
@@ -172,6 +172,7 @@ export default function CafeCard({
           onClick();
         }
       }}
+      style={variant === "saved" ? { backgroundColor: "#F7FAF5", borderColor: "#DBE5D4" } : undefined}
       className={`hs-cafe-list-card flex ${closedLabel ? "h-[156px]" : "h-[136px]"} cursor-pointer items-stretch gap-2 rounded-[22px] p-2 text-left transition-[transform,box-shadow,ring] duration-150 active:scale-[0.99] motion-reduce:transform-none ${
         selected ? "ring-2 ring-[color:var(--hs-green)]" : ""
       }`}

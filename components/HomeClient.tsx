@@ -7,6 +7,8 @@ import { StudyPreferencesProvider, useStudyPreferences } from "./StudyPreference
 import StudyPreferencesSheet from "./StudyPreferencesSheet";
 import OnboardingFlow from "./onboarding/OnboardingFlow";
 import { ONBOARDING_COMPLETE_KEY, ONBOARDING_STARTED_KEY, readOnboardingState } from "@/lib/onboarding";
+import { SavedCafesProvider } from "./SavedCafesProvider";
+import { cafeLinkKey } from "@/utils/cafeActions";
 import CafeDetails from "@/components/CafeDetails";
 import CityChooser from "@/components/CityChooser";
 import { LocationProvider, useLocation } from "@/components/LocationProvider";
@@ -24,7 +26,7 @@ import WorkspacesSheet from "@/components/WorkspacesSheet";
 import type { Cafe } from "@/types/cafe";
 
 export default function HomeClient({ cafes }: { cafes: Cafe[] }) {
-  return <StudyPreferencesProvider cafes={cafes}><LocationProvider><CafeTimeProvider><HomeExperience cafes={cafes} /></CafeTimeProvider></LocationProvider></StudyPreferencesProvider>;
+  return <StudyPreferencesProvider cafes={cafes}><LocationProvider><CafeTimeProvider><SavedCafesProvider cafes={cafes}><HomeExperience cafes={cafes} /></SavedCafesProvider></CafeTimeProvider></LocationProvider></StudyPreferencesProvider>;
 }
 
 function HomeExperience({ cafes }: { cafes: Cafe[] }) {
@@ -64,6 +66,11 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
       } catch { /* Storage may be disabled; selection still works this visit. */ }
       setStorageReady(true);
       const url = new URL(window.location.href);
+      const linkedCafe = cafes.find(cafe => cafeLinkKey(cafe) === url.searchParams.get("cafe"));
+      if (linkedCafe) {
+        setCity(linkedCafe.city); setSelectedCafe(linkedCafe); setSheetMode("cafe");
+        setOnboardingNeeded(false); pendingGuidance.current = false;
+      }
       const notice = url.searchParams.get("auth");
       if (notice === "confirmed" || notice === "confirmation-error") {
         setAccountNotice(notice); setAccountOpen(true);
@@ -72,7 +79,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
       }
     });
     return () => window.cancelAnimationFrame(frame);
-  }, []);
+  }, [cafes]);
 
   useEffect(() => {
     if (!storageReady || onboardingNeeded !== null || preferences.status === "loading") return;
@@ -89,6 +96,14 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
     });
     return () => window.cancelAnimationFrame(frame);
   }, [storageReady, onboardingNeeded, preferences.status, preferences.preferences]);
+
+  useEffect(() => {
+    if (!storageReady) return;
+    const url = new URL(window.location.href);
+    if (selectedCafe) url.searchParams.set("cafe", cafeLinkKey(selectedCafe));
+    else url.searchParams.delete("cafe");
+    window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  }, [selectedCafe, storageReady]);
 
   const handleMapReady = useCallback(() => setMapReady(true), []);
   useEffect(() => {
@@ -163,6 +178,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
   };
 
   const openCafe = useCallback((cafe: Cafe) => {
+    setCity(cafe.city);
     setSelectedCafe(cafe);
     setSheetMode("cafe");
   }, []);
@@ -203,6 +219,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
           onOpenFilters={openFilters}
           onOpenAccount={openAccount}
           onOpenFriends={() => openDockSheet("friends")}
+          onOpenSaved={() => openDockSheet("saved")}
         />
       </div>
 
@@ -242,7 +259,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
 
       {selectedCafe && !choosingCity && <aside aria-label={`${selectedCafe.name} details`} className="relative hidden h-full w-[min(400px,40vw)] shrink-0 overflow-y-auto border-l border-[color:var(--hs-border)] bg-[color:var(--hs-bg)] md:block">
         <button type="button" aria-label="Close cafe details" onClick={handleSheetDismissed} className="absolute right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/95 shadow-sm"><X aria-hidden="true" className="h-5 w-5" /></button>
-        <CafeDetails key={selectedCafe.name} cafe={selectedCafe} />
+        <CafeDetails key={selectedCafe.id ?? selectedCafe.name} cafe={selectedCafe} onSignIn={() => { accountTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setAccountMode("signin"); setAccountNotice(null); setAccountOpen(true); }} />
       </aside>}
 
       {choosingCity && <CityChooser currentCity={city} onChoose={chooseCity} onCancel={() => setChoosingCity(false)} />}

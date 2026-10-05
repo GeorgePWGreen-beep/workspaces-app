@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { animate, motion, useMotionValue } from "framer-motion";
-import { Bookmark, type LucideIcon } from "lucide-react";
+import SavedPanel from "./SavedPanel";
 import FriendsPanel from "./FriendsPanel";
 import { Cafe } from "@/types/cafe";
 import { useStudyPreferences } from "./StudyPreferencesProvider";
@@ -59,30 +59,6 @@ const SPRING = {
 
 const INTERACTIVE_SELECTOR =
   "a, button, input, select, textarea, [contenteditable='true'], [role='button'], [data-sheet-interactive]";
-
-function EmptySheet({
-  title,
-  message,
-  icon: Icon,
-}: {
-  title: string;
-  message: string;
-  icon: LucideIcon;
-}) {
-  return (
-    <div className="flex min-h-[250px] flex-col items-center justify-center px-8 pb-10 text-center">
-      <div className="grid h-14 w-14 place-items-center rounded-full bg-[color:var(--hs-green-soft)] text-[color:var(--hs-green)]">
-        <Icon aria-hidden="true" className="h-6 w-6" strokeWidth={1.8} />
-      </div>
-      <h2 className="mt-4 text-[27px] font-bold leading-none tracking-[-0.026em] text-[color:var(--hs-text)]">
-        {title}
-      </h2>
-      <p className="mt-2 max-w-[260px] text-[16px] leading-6 text-[color:var(--hs-text-secondary)]">
-        {message}
-      </p>
-    </div>
-  );
-}
 
 function getCollapsedOffset(sheetHeight?: number) {
   if (typeof window === "undefined") return 0;
@@ -480,9 +456,9 @@ export default function WorkspacesSheet({
 
   const isVisible = isSheetVisible && (sheetState !== "closed" || isClosing);
 
-  if (desktop && mode === "friends") return (
-    <aside aria-label="Friends" className="fixed bottom-4 right-4 top-4 z-50 w-[400px] overflow-y-auto rounded-[28px] border border-[color:var(--hs-border)] bg-[color:var(--hs-bg)] py-5 shadow-xl" style={{ visibility: isObscured ? "hidden" : "visible" }}>
-      <FriendsPanel onAuth={onFriendsAuth} onClose={closeSheet} />
+  if (desktop && (mode === "friends" || mode === "saved")) return (
+    <aside aria-label={mode === "friends" ? "Friends" : "Saved"} className="fixed bottom-4 right-4 top-4 z-50 w-[400px] overflow-y-auto rounded-[28px] border border-[color:var(--hs-border)] bg-[color:var(--hs-bg)] py-5 shadow-xl" style={{ visibility: isObscured ? "hidden" : "visible" }}>
+      {mode === "friends" ? <FriendsPanel onAuth={onFriendsAuth} onClose={closeSheet} /> : <SavedPanel onSelectCafe={onSelectCafe} onSignIn={() => onFriendsAuth("signin")} onClose={closeSheet} />}
     </aside>
   );
   if (!isVisible) return null;
@@ -536,13 +512,11 @@ export default function WorkspacesSheet({
           }`}
         >
           {mode === "cafe" && selectedCafe ? (
-            <CafeDetails cafe={selectedCafe} />
+            <CafeDetails key={selectedCafe.id ?? selectedCafe.name} cafe={selectedCafe} onSignIn={() => onFriendsAuth("signin")} />
           ) : mode === "saved" ? (
-            <EmptySheet
-              title="Saved"
-              message="Your saved seats will appear here."
-              icon={Bookmark}
-            />
+            <div onFocusCapture={event => { if (sheetState === "collapsed" && event.target.matches(":focus-visible")) animateToState("expanded"); }}>
+              <SavedPanel onSelectCafe={onSelectCafe} onSignIn={() => onFriendsAuth("signin")} onClose={closeSheet} />
+            </div>
           ) : mode === "friends" ? (
             <div onFocusCapture={() => { if (sheetState === "collapsed") animateToState("expanded"); }}>
               <FriendsPanel onAuth={onFriendsAuth} onClose={closeSheet} />

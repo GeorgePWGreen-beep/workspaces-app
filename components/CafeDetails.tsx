@@ -2,11 +2,8 @@
 
 import type { LucideIcon } from "lucide-react";
 import {
-  Bookmark,
-  Navigation,
   Armchair,
   PlugZap,
-  Share2,
   Star,
   Users,
   Volume2,
@@ -14,6 +11,7 @@ import {
   Wallet,
   Wifi,
 } from "lucide-react";
+import CafeActions from "./CafeActions";
 import MatchBadge from "./MatchBadge";
 import { Cafe } from "@/types/cafe";
 import CafeHeroImage from "./CafeHeroImage";
@@ -26,6 +24,7 @@ import { formatVerifiedDate } from "@/utils/openingHours";
 
 interface CafeDetailsProps {
   cafe: Cafe;
+  onSignIn: () => void;
 }
 
 interface StudyFeatureCardProps {
@@ -33,12 +32,6 @@ interface StudyFeatureCardProps {
   title: string;
   value: string;
   tone: FeatureTone;
-}
-
-interface ActionButtonProps {
-  icon: LucideIcon;
-  label: string;
-  variant?: "primary" | "secondary";
 }
 
 const FEATURE_CARD_TONES: Record<FeatureTone, string> = {
@@ -71,33 +64,7 @@ function StudyFeatureCard({
   );
 }
 
-function ActionButton({
-  icon: Icon,
-  label,
-  variant = "secondary",
-}: ActionButtonProps) {
-  const isPrimary = variant === "primary";
-
-  return (
-    <button
-      type="button"
-      className={`flex min-h-20 flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-3 text-sm font-semibold transition-[transform,background-color,border-color,box-shadow] duration-150 active:scale-[0.98] motion-reduce:transform-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-sage)] focus-visible:ring-offset-2 ${
-        isPrimary
-          ? "border-[color:var(--hs-sage-dark)] bg-[color:var(--hs-sage-dark)] text-white shadow-[0_3px_12px_rgba(20,25,21,0.08)]"
-          : "border-[color:var(--hs-border)] bg-[#FCFCFA] text-[color:var(--hs-text)] shadow-[0_3px_12px_rgba(20,25,21,0.04)] hover:border-[color:var(--hs-sage)] hover:bg-[color:var(--hs-sage-soft)]"
-      }`}
-    >
-      <Icon
-        aria-hidden="true"
-        className="h-5 w-5"
-        strokeWidth={2}
-      />
-      <span>{label}</span>
-    </button>
-  );
-}
-
-export default function CafeDetails({ cafe }: CafeDetailsProps) {
+export default function CafeDetails({ cafe, onSignIn }: CafeDetailsProps) {
   const verifiedDate = formatVerifiedDate(cafe.lastVerifiedAt, CITY_CONFIG[cafe.city].timeZone);
   const features: {
     id: string;
@@ -234,11 +201,7 @@ export default function CafeDetails({ cafe }: CafeDetailsProps) {
 
         <div className="my-6 border-t border-[color:var(--hs-border)]" />
 
-        <div className="grid grid-cols-3 gap-2.5">
-          <ActionButton icon={Bookmark} label="Save" />
-          <ActionButton icon={Share2} label="Share" />
-          <ActionButton icon={Navigation} label="Directions" variant="primary" />
-        </div>
+        <CafeActions key={cafe.id ?? cafe.name} cafe={cafe} onSignIn={onSignIn} />
         {verifiedDate && <p className="mt-5 text-center text-[12px] leading-5 text-[color:var(--hs-text-tertiary)]">Last verified <time dateTime={cafe.lastVerifiedAt!}>{verifiedDate}</time></p>}
       </div>
     </div>

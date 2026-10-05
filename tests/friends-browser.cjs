@@ -94,7 +94,7 @@ const shots = '.npm-cache/friends-qa/screenshots'; fs.mkdirSync(shots, { recursi
       await click(page, 'Close Friends');
       if (width < 768) {
         await expect(page.getByRole('button', { name: 'Open Friends' })).toBeVisible();
-        await click(page, 'Open Saved'); await expect(page.getByText('Your saved seats will appear here.')).toBeVisible();
+        await click(page, 'Open Saved'); await expect(page.getByText('Save your favourite study spots and they\'ll appear here.')).toBeVisible();
         // Drag down from collapsed to dismiss; the existing dock must return.
         await page.waitForTimeout(600);
         const sheet = page.locator('.hs-bottom-sheet'); const box = await sheet.boundingBox();

@@ -5,8 +5,10 @@ import CafeDetails from "./CafeDetails";
 
 export default function BottomSheet({
   selectedCafe,
+  onSignIn,
 }: {
   selectedCafe: Cafe | null;
+  onSignIn: () => void;
 }) {
   if (!selectedCafe) return null;
 
@@ -33,7 +35,7 @@ export default function BottomSheet({
         <div className="w-14 h-1.5 rounded-full bg-slate-300" />
       </div>
 
-      <CafeDetails cafe={selectedCafe} />
+      <CafeDetails cafe={selectedCafe} onSignIn={onSignIn} />
     </div>
   );
 }
