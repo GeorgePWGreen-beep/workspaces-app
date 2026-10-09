@@ -1,47 +1,35 @@
 "use client";
 
 import { BrandLockup } from "./BrandMark";
-import { Search } from "lucide-react";
+import CafeSearch, { type CafeSearchProps } from "./CafeSearch";
 import AccountButton from "./AccountButton";
 import QuickFilters, { type QuickFiltersProps } from "./QuickFilters";
 
-interface FloatingSearchProps extends QuickFiltersProps {
-  search: string;
-  onSearchChange: (value: string) => void;
+interface FloatingSearchProps extends QuickFiltersProps, CafeSearchProps {
   onOpenAccount: () => void;
 }
 
 export default function FloatingSearch({
   search,
   onSearchChange,
+  cafes,
+  onSelectCafe,
   filters,
   onChange,
   onOpenFilters,
   onOpenAccount,
 }: FloatingSearchProps) {
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 px-5 pb-3 pt-[max(20px,calc(env(safe-area-inset-top)+12px))] md:hidden">
+    <header data-map-search-controls className="pointer-events-none fixed inset-x-0 top-0 z-50 px-5 pb-3 pt-[max(20px,calc(env(safe-area-inset-top)+12px))] has-[[data-cafe-search-popup]]:z-[55] md:hidden">
       <div className="pointer-events-auto flex items-center justify-between gap-4">
         <h1 className="min-w-0"><BrandLockup /></h1>
 
         <AccountButton onClick={onOpenAccount} />
       </div>
 
-      <label className="hs-glass-strong pointer-events-auto mt-4 flex h-14 w-full items-center gap-3 rounded-[var(--hs-radius-control)] px-[18px] text-[color:var(--hs-text-secondary)] focus-within:ring-2 focus-within:ring-[color:var(--hs-green)]">
-        <Search
-          aria-hidden="true"
-          className="h-6 w-6 shrink-0"
-          strokeWidth={1.9}
-        />
-        <input
-          type="text"
-          aria-label="Search cafés and workspaces"
-          placeholder="Search cafés and workspaces"
-          value={search}
-          onChange={(event) => onSearchChange(event.target.value)}
-          className="min-w-0 flex-1 bg-transparent text-[17px] font-normal tracking-[-0.012em] text-[color:var(--hs-text)] outline-none placeholder:text-[color:var(--hs-text-secondary)]"
-        />
-      </label>
+      <div className="mt-4">
+        <CafeSearch mobile search={search} onSearchChange={onSearchChange} cafes={cafes} onSelectCafe={onSelectCafe} />
+      </div>
 
       <div className="pointer-events-auto mt-3">
         <QuickFilters filters={filters} onChange={onChange} onOpenFilters={onOpenFilters} />

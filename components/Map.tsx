@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Cafe } from "@/types/cafe";
@@ -8,6 +8,7 @@ import { getStudyScoreColor } from "@/utils/studyScore";
 import { CITY_CONFIG, type City } from "@/lib/cities";
 import { useCafeTime } from "./CafeTimeProvider";
 import { getCafeOpeningState } from "@/utils/filters";
+import { resultsCamera, resultsPadding } from "@/utils/mapViewport";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!;
 
@@ -144,6 +145,8 @@ export default function Map({
   cafes,
   selectedCafe,
   setSelectedCafe,
+  viewportKey,
+  sheetOpen,
 }: {
   city: City;
   onReady: () => void;
@@ -151,14 +154,18 @@ export default function Map({
   cafes: Cafe[];
   selectedCafe: Cafe | null;
   setSelectedCafe: (cafe: Cafe) => void;
+  viewportKey: string;
+  sheetOpen: boolean;
 }) {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<Record<string, mapboxgl.Marker>>({});
+  const appliedViewport = useRef<string | null>(null);
   const now = useCafeTime();
 
   useEffect(() => {
     if (!mapContainer.current) return;
+    appliedViewport.current = null;
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -167,18 +174,6 @@ export default function Map({
       zoom: 14,
     });
 
-    if (allCafes.length > 1) {
-      const bounds = new mapboxgl.LngLatBounds();
-      allCafes.forEach((cafe) => bounds.extend(cafe.coords));
-      const mobile = window.matchMedia("(max-width: 767px)").matches;
-      const height = mapContainer.current.clientHeight;
-      map.current.fitBounds(bounds, {
-        padding: mobile
-          ? { top: Math.min(300, height * 0.38), bottom: Math.round(height * 0.47), left: 40, right: 40 }
-          : 70,
-        maxZoom: 15, duration: 0,
-      });
-    }
     map.current.once("load", onReady);
 
     map.current.once("style.load", () => {
@@ -243,14 +238,51 @@ export default function Map({
         ?.setAttribute("aria-pressed", String(isSelected));
     }
 
-    if (!selectedCafe || !map.current) return;
-
-    map.current.flyTo({
-      center: selectedCafe.coords,
-      zoom: 16,
-      duration: 2000,
-    });
   }, [selectedCafe]);
+
+  const viewportSnapshot = useEffectEvent(() => ({
+    camera: resultsCamera(selectedCafe ? [selectedCafe] : cafes), sheetOpen, selection: !!selectedCafe,
+  }));
+
+  useEffect(() => {
+    const instance = map.current;
+    if (!instance || appliedViewport.current === viewportKey) return;
+    const initial = appliedViewport.current === null;
+    // Mark the intent now. Pan/zoom cancels pending work without replaying it.
+    appliedViewport.current = viewportKey;
+    const { camera, sheetOpen: hasSheet, selection } = viewportSnapshot();
+    if (!camera) { instance.stop(); return; }
+    const move = () => {
+      instance.resize();
+      // Read overlays once per search/filter intent, never on sheet drags or pans.
+      const overlayBottom = Math.max(0, ...[...document.querySelectorAll<HTMLElement>("[data-cafe-search-popup], [data-map-search-controls]")]
+        .map(element => element.getBoundingClientRect()).filter(rect => rect.width > 0).map(rect => rect.bottom));
+      const controlsBottom = overlayBottom - (mapContainer.current?.getBoundingClientRect().top ?? 0);
+      const options = {
+        padding: resultsPadding(mapContainer.current?.clientHeight ?? window.innerHeight,
+          window.matchMedia("(max-width: 767px)").matches, hasSheet, controlsBottom),
+        retainPadding: false,
+        duration: initial ? 0 : 650,
+      };
+      if (camera.kind === "focus") instance.flyTo({ ...options, center: camera.center, zoom: camera.zoom });
+      else instance.fitBounds(camera.bounds, { ...options, maxZoom: camera.maxZoom });
+    };
+    // Coalesce typing; explicit selections and the first view move immediately.
+    const timer = setTimeout(move, initial || selection ? 0 : 220);
+    // Mapbox itself interrupts an active flight on gestures. Only cancel our
+    // pending debounce here so native wheel/keyboard zoom keeps working.
+    const cancel = () => { clearTimeout(timer); };
+    const container = instance.getContainer();
+    container.addEventListener("pointerdown", cancel);
+    container.addEventListener("wheel", cancel, { passive: true });
+    container.addEventListener("keydown", cancel);
+    return () => {
+      clearTimeout(timer);
+      container.removeEventListener("pointerdown", cancel);
+      container.removeEventListener("wheel", cancel);
+      container.removeEventListener("keydown", cancel);
+    };
+  }, [viewportKey, allCafes]);
 
   return <div ref={mapContainer} className="w-full h-full" />;
 }

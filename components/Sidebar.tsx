@@ -1,7 +1,8 @@
 "use client";
 
 import { BrandLockup } from "./BrandMark";
-import { Search, UsersRound, Bookmark } from "lucide-react";
+import { UsersRound, Bookmark } from "lucide-react";
+import CafeSearch from "./CafeSearch";
 import { Cafe } from "@/types/cafe";
 import { useStudyPreferences } from "./StudyPreferencesProvider";
 import { rankCafes } from "@/utils/matchV1";
@@ -56,20 +57,7 @@ export default function Sidebar({
           Study spots in {city}. <button type="button" onClick={onChangeCity} className="min-h-11 text-sm font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Change city</button>
         </p>
 
-        <div className="relative">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--hs-muted)]"
-            strokeWidth={2}
-          />
-          <input
-            type="text"
-            placeholder="Search cafes..."
-            value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-            className="w-full rounded-xl border border-[color:var(--hs-border)] bg-white py-3 pl-10 pr-4 text-[color:var(--hs-ink)] shadow-sm outline-none placeholder:text-[color:var(--hs-muted)] focus:border-[color:var(--hs-sage)] focus:ring-2 focus:ring-[color:var(--hs-sage-soft)]"
-          />
-        </div>
+        <CafeSearch search={search} onSearchChange={onSearchChange} cafes={cafes} onSelectCafe={setSelectedCafe} />
 
         <div className="mt-3">
           <QuickFilters filters={filters} onChange={onChange} onOpenFilters={onOpenFilters} />

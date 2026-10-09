@@ -17,6 +17,7 @@ import FiltersSheet from "@/components/FiltersSheet";
 import AccountSheet, { type AccountNotice } from "@/components/AccountSheet";
 import { createDefaultFilters, type CafeFilters } from "@/types/filters";
 import { filterCafes } from "@/utils/filters";
+import { resultsViewportKey } from "@/utils/mapViewport";
 import { CITY_STORAGE_KEY, NEARBY_GUIDANCE_KEY, type City } from "@/lib/cities";
 import FloatingDock, { type DockSheetMode } from "@/components/FloatingDock";
 import FloatingSearch from "@/components/FloatingSearch";
@@ -41,6 +42,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
   const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
   const [sheetMode, setSheetMode] = useState<DockSheetMode | "cafe" | null>(null);
   const [search, setSearch] = useState("");
+  const [selectionVersion, setSelectionVersion] = useState(0);
   const [filters, setFilters] = useState<CafeFilters>(createDefaultFilters);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const filtersTrigger = useRef<HTMLElement | null>(null);
@@ -154,6 +156,12 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
     setSheetMode((current) => current === "cafe" ? "nearby" : current);
   };
 
+  const changeSearch = (next: string) => {
+    setSearch(next);
+    setSelectedCafe(null);
+    setSheetMode(current => current === "cafe" ? "nearby" : current);
+  };
+
   const openFilters = () => {
     // Capture before Nearby is hidden; hiding it can blur its Filters button.
     filtersTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
@@ -178,6 +186,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
   };
 
   const openCafe = useCallback((cafe: Cafe) => {
+    setSelectionVersion(version => version + 1);
     setCity(cafe.city);
     setSelectedCafe(cafe);
     setSheetMode("cafe");
@@ -213,7 +222,7 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
           selectedCafe={selectedCafe}
           setSelectedCafe={openCafe}
           search={search}
-          onSearchChange={setSearch}
+          onSearchChange={changeSearch}
           filters={filters}
           onChange={changeFilters}
           onOpenFilters={openFilters}
@@ -232,12 +241,16 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
           cafes={filteredCafes}
           selectedCafe={selectedCafe}
           setSelectedCafe={openCafe}
+          viewportKey={resultsViewportKey(search, filters, selectionVersion)}
+          sheetOpen={sheetMode !== null}
         />
       </div>
 
       <FloatingSearch
         search={search}
-        onSearchChange={setSearch}
+        onSearchChange={changeSearch}
+        cafes={filteredCafes}
+        onSelectCafe={openCafe}
         filters={filters}
         onChange={changeFilters}
         onOpenFilters={openFilters}
