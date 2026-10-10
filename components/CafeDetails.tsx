@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+
 import type { LucideIcon } from "lucide-react";
 import {
   Armchair,
@@ -10,6 +12,7 @@ import {
   VolumeX,
   Wallet,
   Wifi,
+  X,
 } from "lucide-react";
 import CafeActions from "./CafeActions";
 import MatchBadge from "./MatchBadge";
@@ -21,6 +24,7 @@ import OpeningHours from "./OpeningHours";
 import WalkTime from "./WalkTime";
 import { CITY_CONFIG } from "@/lib/cities";
 import { formatVerifiedDate } from "@/utils/openingHours";
+import { useFeatureIntroduction } from "./FeatureIntroductions";
 
 interface CafeDetailsProps {
   cafe: Cafe;
@@ -65,6 +69,9 @@ function StudyFeatureCard({
 }
 
 export default function CafeDetails({ cafe, onSignIn }: CafeDetailsProps) {
+  const { ref: introductionRef, visible: scoreVisible, pending: scorePending, dismiss: dismissScore } = useFeatureIntroduction("studyScore");
+  const scoreAnchor = useRef<HTMLDivElement>(null);
+  const dismissScoreIntroduction = () => { dismissScore(); scoreAnchor.current?.focus({ preventScroll: true }); };
   const verifiedDate = formatVerifiedDate(cafe.lastVerifiedAt, CITY_CONFIG[cafe.city].timeZone);
   const features: {
     id: string;
@@ -129,7 +136,7 @@ export default function CafeDetails({ cafe, onSignIn }: CafeDetailsProps) {
     >
       <div className="relative">
         <CafeHeroImage src={cafe.image} cafeName={cafe.name} />
-        <div className="absolute bottom-0 right-5 z-10 w-[112px] translate-y-[65%] min-[390px]:w-[120px]">
+        <div ref={scoreAnchor} tabIndex={-1} aria-label={`Study Score ${cafe.studyScore} out of 100`} data-score-introduction-highlight={scoreVisible || undefined} className={`absolute bottom-0 right-5 z-10 w-[112px] translate-y-[65%] rounded-full outline-none min-[390px]:w-[120px] ${scoreVisible ? "ring-4 ring-[color:var(--hs-green-soft)]" : ""}`}>
           <StudyScore score={cafe.studyScore} />
         </div>
       </div>
@@ -154,7 +161,14 @@ export default function CafeDetails({ cafe, onSignIn }: CafeDetailsProps) {
           </div>
         </div>
 
-        <MatchBadge cafe={cafe} details />
+        {(scorePending || scoreVisible) && <div ref={introductionRef} role="region" aria-label="About Study Score" className="hs-introduction mt-6 rounded-2xl border border-[color:var(--hs-border)] bg-[color:var(--hs-green-soft)] p-3.5"
+          onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); dismissScoreIntroduction(); } }}>
+          <div className="flex items-start justify-between gap-2">
+            <div><h3 className="text-sm font-semibold text-[color:var(--hs-green-deep)]">Study Score, explained</h3>
+              <p className="mt-1 text-[13px] leading-5 text-[color:var(--hs-text-secondary)]">A score out of 100 for Wi-Fi, seating, sockets and more. The same study-friendly rating for everyone.</p></div>
+            <button type="button" aria-label="Dismiss Study Score introduction" onClick={dismissScoreIntroduction} className="grid h-11 w-11 shrink-0 place-items-center rounded-full hover:bg-black/5 focus-visible:outline-2"><X aria-hidden="true" className="h-4 w-4" /></button>
+          </div>
+        </div>}
 
         <OpeningHours cafe={cafe} />
 
@@ -182,6 +196,8 @@ export default function CafeDetails({ cafe, onSignIn }: CafeDetailsProps) {
             {cafe.description}
           </p>
         </section>
+
+        <MatchBadge cafe={cafe} details />
 
         <div className="my-6 border-t border-[color:var(--hs-border)]" />
 

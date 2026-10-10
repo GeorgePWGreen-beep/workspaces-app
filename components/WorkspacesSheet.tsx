@@ -12,8 +12,12 @@ import CafeCard from "./CafeCard";
 import CafeDetails from "./CafeDetails";
 import type { City } from "@/lib/cities";
 import { WalkingLocationAction } from "./LocationProvider";
+import { X } from "lucide-react";
+import NearbyIntroduction from "./NearbyIntroduction";
 
 interface WorkspacesSheetProps {
+  showIntroduction?: boolean;
+  dismissRequest?: number;
   city: City;
   onChangeCity: () => void;
   onOpenFilters: () => void;
@@ -127,6 +131,8 @@ function getReleaseState(
 }
 
 export default function WorkspacesSheet({
+  showIntroduction = false,
+  dismissRequest = 0,
   city,
   onChangeCity,
   onOpenFilters,
@@ -177,9 +183,11 @@ export default function WorkspacesSheet({
     (nextState: OpenSheetState) => {
       stopCurrentAnimation();
       setSheetState(nextState);
+      // Keep native scrolling from taking over a grab during either spring.
+      // Expanded content becomes scrollable again once the spring settles.
+      setIsContentScrollable(false);
 
       if (nextState === "collapsed") {
-        setIsContentScrollable(false);
         contentRef.current?.scrollTo({ top: 0 });
       }
 
@@ -253,6 +261,10 @@ export default function WorkspacesSheet({
   useEffect(() => {
     closeSheetRef.current = closeSheet;
   }, [closeSheet]);
+
+  useEffect(() => {
+    if (dismissRequest) closeSheetRef.current();
+  }, [dismissRequest]);
 
   useEffect(() => {
     animateToStateRef.current = animateToState;
@@ -331,12 +343,22 @@ export default function WorkspacesSheet({
     event: React.PointerEvent<HTMLElement>,
     startState: OpenSheetState,
   ) => {
+    // This pointer now belongs to the sheet. In WebKit, native text dragging
+    // can otherwise swallow pointerup and leave an interrupted spring parked.
+    event.preventDefault();
     stopCurrentAnimation();
     closeAfterCollapseRef.current = false;
+    // The state names the destination, not the in-flight position. Stopping
+    // invalidates the old completion callback before this gesture takes over.
+    const startOffset = sheetY.get();
+    if (isClosing) {
+      setIsClosing(false);
+      setSheetState(startState);
+    }
     dragSessionRef.current = {
       pointerId: event.pointerId,
       startY: event.clientY,
-      startOffset: getOffsetForState(startState, collapsedOffset),
+      startOffset,
       startState,
       isDragging: true,
       lastY: event.clientY,
@@ -348,9 +370,14 @@ export default function WorkspacesSheet({
   };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLElement>) => {
-    if (isClosing || sheetState === "closed" || isInteractiveTarget(event.target)) {
+    if (!isSheetVisible || isInteractiveTarget(event.target)) return;
+
+    // Opening, expanding, collapsing and closing must all be interruptible.
+    if (stopAnimationRef.current) {
+      beginDrag(event, sheetState === "expanded" ? "expanded" : "collapsed");
       return;
     }
+    if (isClosing || sheetState === "closed") return;
 
     if (sheetState === "collapsed") {
       beginDrag(event, "collapsed");
@@ -402,7 +429,9 @@ export default function WorkspacesSheet({
     sheetY.set(
       applyDragResistance(
         dragSession.startOffset + dragDistance,
-        collapsedOffset,
+        // A closing/opening sheet can start below the collapsed snap. Applying
+        // resistance to that existing offset would itself cause a jump.
+        Math.max(collapsedOffset, dragSession.startOffset),
       ),
     );
   };
@@ -488,7 +517,7 @@ export default function WorkspacesSheet({
             : `${mode} workspaces`
         }
         className={`hs-bottom-sheet fixed inset-x-0 bottom-0 z-50 flex h-[95dvh] flex-col overflow-hidden rounded-t-[var(--hs-radius-sheet)] md:hidden ${
-          sheetState === "collapsed" ? "touch-none" : ""
+          !isContentScrollable ? "touch-none" : ""
         }`}
         style={{ y: sheetY, visibility: isObscured ? "hidden" : "visible" }}
         onPointerDown={handlePointerDown}
@@ -524,9 +553,12 @@ export default function WorkspacesSheet({
           ) : (
             <div className="px-5 pb-7 pt-1">
               <div className="mb-4">
-                <h2 className="text-[27px] font-bold leading-[1.05] tracking-[-0.026em] text-[color:var(--hs-text)]">
+                <div className="flex items-start justify-between gap-2">
+                {showIntroduction ? <NearbyIntroduction /> : <h2 className="text-[27px] font-bold leading-[1.05] tracking-[-0.026em] text-[color:var(--hs-text)]">
                   Best seats in {city}
-                </h2>
+                </h2>}
+                <button type="button" aria-label="Close Nearby" onClick={closeSheet} className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-[color:var(--hs-text-secondary)] hover:bg-black/5 focus-visible:outline-2 focus-visible:outline-[color:var(--hs-green)]"><X aria-hidden="true" className="h-5 w-5" /></button>
+                </div>
                 <p className="mt-1.5 text-[16px] font-normal text-[color:var(--hs-text-secondary)]">
                   {nearbyCafes.length} {nearbyCafes.length === 1 ? "workspace" : "workspaces"} <span aria-hidden="true">· </span>
                   <button type="button" onClick={onChangeCity} className="min-h-11 font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Change city</button>

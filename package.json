@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test:search": "tsc --target ES2022 --module commonjs --skipLibCheck --strict --outDir .next/search-tests utils/cafeSearch.ts utils/mapViewport.ts utils/filters.ts && node --test tests/search.test.cjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

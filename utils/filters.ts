@@ -3,6 +3,7 @@ import type { Cafe } from "../types/cafe";
 import type { CafeFilters, QuickFilterKey } from "../types/filters";
 import { getOpeningStatus } from "./openingHours";
 import { estimateWalkMinutes, type Coordinates } from "./walking";
+import { searchCafes } from "./cafeSearch";
 
 export type CafeOpeningState = "open" | "closed" | "unknown";
 
@@ -37,9 +38,8 @@ function matchesCategory<T>(selected: readonly T[], value: T): boolean {
  * Null optional data stays visible until its corresponding filter is selected.
  * A selected walk limit is suspended while user location is unavailable. */
 export function filterCafes(cafes: readonly Cafe[], filters: CafeFilters, context: FilterContext): Cafe[] {
-  const search = context.search.trim().toLowerCase();
-  return cafes.filter((cafe) => {
-    if (cafe.city !== context.city || !cafe.name.toLowerCase().includes(search)) return false;
+  return searchCafes(cafes.filter((cafe) => {
+    if (cafe.city !== context.city) return false;
     if (cafe.studyScore < filters.minStudyScore) return false;
     if (!matchesCategory(filters.prices, cafe.price) ||
       !matchesCategory(filters.wifi, cafe.wifi) ||
@@ -57,7 +57,7 @@ export function filterCafes(cafes: readonly Cafe[], filters: CafeFilters, contex
     }
     if (filters.openNow && !matchesOpenNow(cafe, context.now)) return false;
     return true;
-  });
+  }), context.search);
 }
 
 function isOnly<T>(values: readonly T[], value: T): boolean {

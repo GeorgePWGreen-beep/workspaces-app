@@ -1,7 +1,9 @@
 "use client";
 
 import { BrandLockup } from "./BrandMark";
-import { Search, UsersRound, Bookmark } from "lucide-react";
+import { UsersRound, Bookmark, X } from "lucide-react";
+import NearbyIntroduction from "./NearbyIntroduction";
+import CafeSearch from "./CafeSearch";
 import { Cafe } from "@/types/cafe";
 import { useStudyPreferences } from "./StudyPreferencesProvider";
 import { rankCafes } from "@/utils/matchV1";
@@ -13,6 +15,8 @@ import { WalkingLocationAction } from "./LocationProvider";
 import AccountButton from "./AccountButton";
 
 export default function Sidebar({
+  showIntroduction = false,
+  onDismissIntroduction,
   city,
   onChangeCity,
   cafes,
@@ -27,6 +31,8 @@ export default function Sidebar({
   onOpenFriends,
   onOpenSaved,
 }: {
+  showIntroduction?: boolean;
+  onDismissIntroduction?: () => void;
   city: City;
   onChangeCity: () => void;
   cafes: Cafe[];
@@ -56,20 +62,7 @@ export default function Sidebar({
           Study spots in {city}. <button type="button" onClick={onChangeCity} className="min-h-11 text-sm font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Change city</button>
         </p>
 
-        <div className="relative">
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--hs-muted)]"
-            strokeWidth={2}
-          />
-          <input
-            type="text"
-            placeholder="Search cafes..."
-            value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-            className="w-full rounded-xl border border-[color:var(--hs-border)] bg-white py-3 pl-10 pr-4 text-[color:var(--hs-ink)] shadow-sm outline-none placeholder:text-[color:var(--hs-muted)] focus:border-[color:var(--hs-sage)] focus:ring-2 focus:ring-[color:var(--hs-sage-soft)]"
-          />
-        </div>
+        <CafeSearch search={search} onSearchChange={onSearchChange} cafes={cafes} onSelectCafe={setSelectedCafe} />
 
         <div className="mt-3">
           <QuickFilters filters={filters} onChange={onChange} onOpenFilters={onOpenFilters} />
@@ -77,6 +70,10 @@ export default function Sidebar({
       </div>
 
       <div className="space-y-3 p-4">
+        {showIntroduction && <div className="flex items-start gap-2 rounded-2xl bg-[color:var(--hs-green-soft)] p-3">
+          <NearbyIntroduction />
+          <button type="button" aria-label="Dismiss introduction" onClick={onDismissIntroduction} className="grid h-11 w-11 shrink-0 place-items-center rounded-full hover:bg-black/5"><X aria-hidden="true" className="h-4 w-4" /></button>
+        </div>}
         <p className="text-xs text-[color:var(--hs-text-secondary)]">{matches.size ? "Best match for you" : "Highest Study Score"}</p>
         <WalkingLocationAction />
         {cafes.length === 0 && <p className="text-sm leading-6 text-[color:var(--hs-text-secondary)]">No matching workspaces in {city} yet. Try clearing your filters or choosing another city.</p>}
