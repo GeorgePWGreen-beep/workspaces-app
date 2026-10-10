@@ -1,7 +1,8 @@
 "use client";
 
 import { BrandLockup } from "./BrandMark";
-import { UsersRound, Bookmark } from "lucide-react";
+import { UsersRound, Bookmark, X } from "lucide-react";
+import NearbyIntroduction from "./NearbyIntroduction";
 import CafeSearch from "./CafeSearch";
 import { Cafe } from "@/types/cafe";
 import { useStudyPreferences } from "./StudyPreferencesProvider";
@@ -14,6 +15,8 @@ import { WalkingLocationAction } from "./LocationProvider";
 import AccountButton from "./AccountButton";
 
 export default function Sidebar({
+  showIntroduction = false,
+  onDismissIntroduction,
   city,
   onChangeCity,
   cafes,
@@ -28,6 +31,8 @@ export default function Sidebar({
   onOpenFriends,
   onOpenSaved,
 }: {
+  showIntroduction?: boolean;
+  onDismissIntroduction?: () => void;
   city: City;
   onChangeCity: () => void;
   cafes: Cafe[];
@@ -65,6 +70,10 @@ export default function Sidebar({
       </div>
 
       <div className="space-y-3 p-4">
+        {showIntroduction && <div className="flex items-start gap-2 rounded-2xl bg-[color:var(--hs-green-soft)] p-3">
+          <NearbyIntroduction />
+          <button type="button" aria-label="Dismiss introduction" onClick={onDismissIntroduction} className="grid h-11 w-11 shrink-0 place-items-center rounded-full hover:bg-black/5"><X aria-hidden="true" className="h-4 w-4" /></button>
+        </div>}
         <p className="text-xs text-[color:var(--hs-text-secondary)]">{matches.size ? "Best match for you" : "Highest Study Score"}</p>
         <WalkingLocationAction />
         {cafes.length === 0 && <p className="text-sm leading-6 text-[color:var(--hs-text-secondary)]">No matching workspaces in {city} yet. Try clearing your filters or choosing another city.</p>}

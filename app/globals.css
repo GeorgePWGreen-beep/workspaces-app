@@ -222,3 +222,12 @@ body {
 .hs-horizontal-scroll::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes hs-introduction-enter {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hs-introduction { animation: hs-introduction-enter 180ms ease-out; }
+}

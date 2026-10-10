@@ -149,7 +149,7 @@ export default function Map({
   sheetOpen,
 }: {
   city: City;
-  onReady: () => void;
+  onReady?: () => void;
   allCafes: Cafe[];
   cafes: Cafe[];
   selectedCafe: Cafe | null;
@@ -174,7 +174,7 @@ export default function Map({
       zoom: 14,
     });
 
-    map.current.once("load", onReady);
+    if (onReady) map.current.once("load", onReady);
 
     map.current.once("style.load", () => {
       if (map.current) softenMapStyle(map.current);

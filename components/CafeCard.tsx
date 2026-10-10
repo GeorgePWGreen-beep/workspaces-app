@@ -104,7 +104,10 @@ export default function CafeCard({
   if (variant === "sidebar") {
     return (
       <div
+        role="button"
+        tabIndex={0}
         onClick={onClick}
+        onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onClick(); } }}
         className={`group cursor-pointer rounded-3xl border border-[color:var(--hs-border)] bg-white p-5 transition-all duration-300 ${
           selected
             ? "ring-2 ring-[color:var(--hs-sage)] shadow-xl"
@@ -208,7 +211,7 @@ export default function CafeCard({
           className="grid h-14 w-14 place-items-center rounded-[14px] border-2 bg-[#FCFCFA] text-[29px] font-bold leading-none tracking-[-0.045em] text-[#171A18] shadow-[0_2px_6px_rgba(20,25,21,0.06)] max-[374px]:h-[52px] max-[374px]:w-[52px] max-[374px]:rounded-[13px] max-[374px]:text-[27px]"
           style={{ borderColor: scoreColor.stroke }}
         >
-          <span className="sr-only">Study Score </span>
+          <span className="sr-only">Study Score {cafe.studyScore} out of 100</span>
           <span aria-hidden="true">{cafe.studyScore}</span>
         </div>
         <ChevronRight

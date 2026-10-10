@@ -9,22 +9,21 @@ import PreferenceMotif from "../PreferenceMotif";
 import type { City } from "@/lib/cities";
 import { useStudyPreferences } from "../StudyPreferencesProvider";
 import WelcomeStep, { primaryAction, secondaryAction } from "./WelcomeStep";
-import { CityStep, MatchExample } from "./DiscoverySteps";
+import { MatchExample } from "./DiscoverySteps";
 import PreferenceFields, { preferenceAction, preferenceHeadings, type PreferenceDraft } from "./PreferenceFields";
 
-type Step = "welcome" | "city" | "intro" | "atmosphere" | "session" | "priorities" | "complete";
-const steps: Step[] = ["welcome", "city", "intro", "atmosphere", "session", "priorities", "complete"];
+type Step = "welcome" | "intro" | "atmosphere" | "session" | "priorities" | "complete";
+const steps: Step[] = ["welcome", "intro", "atmosphere", "session", "priorities", "complete"];
 const headings: Record<Exclude<Step, "welcome">, string> = {
-  city: "Where are you studying?", intro: "Make Hot Seats yours", atmosphere: preferenceHeadings[0],
+  intro: "Make Hot Seats yours", atmosphere: preferenceHeadings[0],
   session: preferenceHeadings[1], priorities: preferenceHeadings[2], complete: "You're all set.",
 };
 
-export default function OnboardingFlow({ city, onChooseCity, onFinish }: {
-  city: City | null; onChooseCity: (city: City) => void; onFinish: () => void;
+export default function OnboardingFlow({ city, onFinish }: {
+  city: City | null; onFinish: () => void;
 }) {
   const preferences = useStudyPreferences();
   const [step, setStep] = useState<Step>("welcome");
-  const [exploreOnly, setExploreOnly] = useState(false);
   const [draft, setDraft] = useState<PreferenceDraft>(() => preferences.preferences ?? { atmosphere_preference: null, session_length: null, priorities: [] });
   const scroll = useRef<HTMLElement>(null);
   const reducedMotion = useReducedMotion();
@@ -35,7 +34,6 @@ export default function OnboardingFlow({ city, onChooseCity, onFinish }: {
     scroll.current?.scrollTo({ top: 0 });
     scroll.current?.querySelector<HTMLHeadingElement>("h1")?.focus({ preventScroll: true });
   }, [step]);
-  function start(explore: boolean) { setExploreOnly(explore); setStep("city"); }
   async function save() {
     if (submitting.current || !draft.atmosphere_preference || !draft.session_length) return;
     submitting.current = true;
@@ -50,7 +48,7 @@ export default function OnboardingFlow({ city, onChooseCity, onFinish }: {
         {step !== "welcome" && <button aria-label="Go back" disabled={busy} onClick={() => setStep(steps[steps.indexOf(step) - 1])} className="grid h-11 w-11 place-items-center rounded-full border border-[color:var(--hs-border)] bg-[color:var(--hs-surface)] focus-visible:outline-2 disabled:opacity-40"><ArrowLeft aria-hidden="true" className="h-5 w-5" /></button>}
       </header>
       <motion.div key={step} initial={reducedMotion ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.18 }} className={`${preferenceStep >= 0 ? styles.stepScreen : "justify-center pb-2 sm:pb-10"} flex flex-1 flex-col`}>
-        {step === "welcome" ? <WelcomeStep onStart={() => start(false)} onExplore={() => start(true)} /> : <>
+        {step === "welcome" ? <WelcomeStep onStart={() => setStep("intro")} onExplore={onFinish} /> : <>
           <div data-step={preferenceStep} className={preferenceStep >= 0 ? styles.questionHeader : undefined}>
           {preferenceStep >= 0 && <PreferenceMotif className={styles.motif} />}
           {preferenceStep >= 0 && <div aria-label={`Study preferences: step ${preferenceStep + 1} of 3`} className="mb-7">
@@ -60,7 +58,6 @@ export default function OnboardingFlow({ city, onChooseCity, onFinish }: {
           {step === "complete" && <span className="mb-6 grid h-14 w-14 place-items-center rounded-full bg-[color:var(--hs-green-soft)] text-[color:var(--hs-green)]"><Check aria-hidden="true" className="h-6 w-6" /></span>}
           <h1 tabIndex={-1} className={`${preferenceStep >= 0 ? "max-w-[370px] text-[30px] leading-[1.13] sm:text-[34px]" : "text-[34px] leading-[1.08] sm:text-[40px]"} font-bold tracking-[-0.035em] text-balance outline-none`}>{headings[step]}</h1>
           </div>
-          {step === "city" && <><CityStep city={city} onChange={onChooseCity} /><button disabled={!city} className={`${primaryAction} mt-8`} onClick={() => exploreOnly ? onFinish() : setStep("intro")}>{exploreOnly && city ? `Explore ${city}` : "Continue"}</button></>}
           {step === "intro" && <>
             <p className="mt-5 text-base font-medium">Everyone studies differently.</p>
             <p className="mt-2 text-[15px] leading-6 text-[color:var(--hs-text-secondary)]">Tell us what you care about and we&apos;ll calculate a personalised Match for every café.</p>

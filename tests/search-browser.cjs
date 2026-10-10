@@ -27,7 +27,11 @@ fs.mkdirSync(shots, { recursive: true });
       await page.goto(app, { timeout: 120000 });
       const input = page.getByRole('combobox').filter({ visible: true });
       const suggestions = page.getByRole('dialog', { name: 'Cafe suggestions' });
-      const click = name => page.getByRole('button', { name: name === 'Filters' ? /^Filters(?:,|$)/ : name, exact: true }).filter({ visible: true }).first().click();
+      const click = name => {
+        const buttons = page.getByRole('button', { name: name === 'Filters' ? /^Filters(?:,|$)/ : name, exact: true }).filter({ visible: true });
+        // Expanded Nearby covers the header; its own Filters action comes last.
+        return (name === 'Filters' ? buttons.last() : buttons.first()).click();
+      };
       await expect(input).toBeVisible();
       await page.waitForFunction(() => {
         const element = document.querySelector('.mapboxgl-map');

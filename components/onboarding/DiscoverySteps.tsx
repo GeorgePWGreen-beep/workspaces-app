@@ -1,4 +1,5 @@
 import { ArrowUpRight, Check, MapPin } from "lucide-react";
+import StudyScore from "../StudyScore";
 import { CITIES, type City } from "@/lib/cities";
 
 export function CityStep({ city, onChange }: { city: City | null; onChange: (city: City) => void }) {
@@ -21,7 +22,7 @@ export function MatchExample({ complete = false }: { complete?: boolean }) {
   return <div className="my-8 rounded-[26px] border border-[color:var(--hs-border)] bg-[color:var(--hs-surface)] p-6 shadow-[var(--hs-shadow-small)]">
     <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.15em] text-[color:var(--hs-text-tertiary)]">An example of your Hot Seats</p>
     {complete && <p className="mb-4 text-xl font-bold tracking-tight">The Ridge</p>}
-    <div className="flex items-center justify-between"><span className="text-sm font-semibold">Study Score</span><span className="text-[32px] font-bold tracking-tight">{complete ? 87 : 84}</span></div>
-    <div className="mt-3 flex items-center justify-between border-t border-[color:var(--hs-border)] pt-4"><span className="text-sm text-[color:var(--hs-text-secondary)]">Your Match</span><span className="rounded-full bg-[color:var(--hs-green-soft)] px-3 py-1.5 text-sm font-semibold text-[color:var(--hs-green-deep)]">{complete ? 94 : 93}%</span></div>
+    <div className="flex justify-center"><StudyScore score={84} /></div>
+    <div className="mt-3 flex items-center justify-between border-t border-[color:var(--hs-border)] pt-4"><span className="text-sm text-[color:var(--hs-text-secondary)]">Your Match</span><span className="rounded-full bg-[color:var(--hs-green-soft)] px-3 py-1.5 text-sm font-semibold text-[color:var(--hs-green-deep)]">93%</span></div>
   </div>;
 }
