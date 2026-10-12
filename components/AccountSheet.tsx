@@ -3,14 +3,14 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { ArrowLeft, Eye, EyeOff, LoaderCircle, MailCheck, UserRound, X } from "lucide-react";
 import { useAuth } from "./AuthProvider";
-import { validateAuthFields, type AuthFieldErrors, type AuthFields } from "@/utils/auth";
+import { RECOVERY_EMAIL_SENT, validateRecoveryEmail, validateAuthFields, type AuthFieldErrors, type AuthFields } from "@/utils/auth";
 
 export type AccountNotice = "confirmed" | "confirmation-error" | null;
-const actionStyle = "flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[color:var(--hs-green)] px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-[color:var(--hs-green-deep)] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--hs-green)]";
+export const accountActionStyle = "flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[color:var(--hs-green)] px-4 py-3 text-base font-semibold text-white transition-colors hover:bg-[color:var(--hs-green-deep)] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--hs-green)]";
 
 export default function AccountSheet({ onClose, notice, onStudyPreferences, initialMode = "welcome" }: { onClose: () => void; notice: AccountNotice; onStudyPreferences: () => void; initialMode?: "welcome" | "signin" | "signup" }) {
   const auth = useAuth();
-  const [mode, setMode] = useState<"welcome" | "signup" | "signin" | "confirmation">(notice ? "signin" : initialMode);
+  const [mode, setMode] = useState<"welcome" | "signup" | "signin" | "confirmation" | "recovery" | "recovery-sent">(notice ? "signin" : initialMode);
   const [fields, setFields] = useState<AuthFields>({ username: "", email: "", password: "" });
   const [errors, setErrors] = useState<AuthFieldErrors>({});
   const [message, setMessage] = useState("");
@@ -36,6 +36,15 @@ export default function AccountSheet({ onClose, notice, onStudyPreferences, init
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (auth.busy) return;
+    if (mode === "recovery") {
+      const emailError = validateRecoveryEmail(fields.email);
+      setErrors(emailError ? { email: emailError } : {}); setMessage("");
+      if (emailError) { document.getElementById(`${prefix}-email`)?.focus(); return; }
+      const result = await auth.requestPasswordReset(fields.email);
+      if (result.ok) switchMode("recovery-sent");
+      else setMessage(result.message);
+      return;
+    }
     const validation = validateAuthFields(fields, mode === "signup");
     setErrors(validation); setMessage("");
     const invalid = Object.keys(validation)[0];
@@ -52,8 +61,9 @@ export default function AccountSheet({ onClose, notice, onStudyPreferences, init
   }
 
   const signup = mode === "signup";
-  const title = auth.user ? "Your account" : mode === "confirmation" ? "Check your email" : signup ? "Create your account" : mode === "signin" ? "Welcome back" : "Make yourself at home";
-  const description = auth.user ? "Your place at Hot Seats." : mode === "confirmation" ? "One quick step to finish signing up." : signup ? "Choose your username to get started." : mode === "signin" ? "Sign in to your Hot Seats account." : "A little space of your own at Hot Seats.";
+  const recovery = mode === "recovery" || mode === "recovery-sent";
+  const title = recovery ? mode === "recovery-sent" ? "Check your email" : "Forgot your password?" : auth.user ? "Your account" : mode === "confirmation" ? "Check your email" : signup ? "Create your account" : mode === "signin" ? "Welcome back" : "Make yourself at home";
+  const description = recovery ? "We’ll help you get back to your study spots." : auth.user ? "Your place at Hot Seats." : mode === "confirmation" ? "One quick step to finish signing up." : signup ? "Choose your username to get started." : mode === "signin" ? "Sign in to your Hot Seats account." : "A little space of your own at Hot Seats.";
 
   function input(field: keyof AuthFields, label: string, hint?: string) {
     const password = field === "password";
@@ -82,7 +92,7 @@ export default function AccountSheet({ onClose, notice, onStudyPreferences, init
     className="fixed inset-x-0 bottom-0 top-auto m-0 mx-auto max-h-[calc(100dvh-env(safe-area-inset-top)-16px)] w-full max-w-[460px] overflow-hidden rounded-t-[32px] border-0 bg-[color:var(--hs-bg)] p-0 text-[color:var(--hs-text)] shadow-2xl backdrop:bg-black/25 md:inset-0 md:m-auto md:max-h-[min(90dvh,780px)] md:rounded-[32px]">
     <div className="max-h-[inherit] overflow-y-auto overscroll-contain px-6 pt-5 pb-[max(24px,env(safe-area-inset-bottom))] sm:px-8">
       <div className="mb-5 flex items-center justify-between gap-3">
-        {mode !== "welcome" && !auth.user ? <button type="button" aria-label="Back to account options" disabled={auth.busy} onClick={() => switchMode("welcome")} className="grid h-11 w-11 place-items-center rounded-full border border-[color:var(--hs-border)] bg-white focus-visible:outline-2"><ArrowLeft className="h-5 w-5" /></button>
+        {mode !== "welcome" && !auth.user ? <button type="button" aria-label={recovery ? "Back to sign in" : "Back to account options"} disabled={auth.busy} onClick={() => switchMode(recovery ? "signin" : "welcome")} className="grid h-11 w-11 place-items-center rounded-full border border-[color:var(--hs-border)] bg-white focus-visible:outline-2"><ArrowLeft className="h-5 w-5" /></button>
           : <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[color:var(--hs-green-soft)] text-[color:var(--hs-green-deep)]"><UserRound aria-hidden="true" className="h-5 w-5" /></span>}
         <button type="button" onClick={onClose} aria-label="Close account" className="grid h-11 w-11 place-items-center rounded-full border border-[color:var(--hs-border)] bg-white focus-visible:outline-2"><X aria-hidden="true" className="h-5 w-5" /></button>
       </div>
@@ -95,22 +105,29 @@ export default function AccountSheet({ onClose, notice, onStudyPreferences, init
           {auth.profile && <div className="rounded-2xl border border-[color:var(--hs-border)] bg-white p-4"><p className="break-words text-xl font-bold">{auth.profile.display_name || auth.profile.username}</p><p className="mt-1 break-all text-sm text-[color:var(--hs-text-secondary)]">@{auth.profile.username}</p></div>}
           <button type="button" onClick={onStudyPreferences} className="min-h-12 w-full rounded-2xl border border-[color:var(--hs-border)] bg-white px-4 py-3 text-left font-semibold">Study preferences</button>
           <div><p className="text-xs font-semibold text-[color:var(--hs-text-secondary)]">Email</p><p className="mt-1 break-all text-base">{auth.user.email}</p></div>
-          <button type="button" disabled={auth.busy} onClick={async () => { setMessage(""); const result = await auth.signOut(); if (!result.ok) setMessage(result.message); else switchMode("welcome"); }} className={actionStyle}>{auth.busy ? "Logging out…" : "Log out"}</button>
+          <button type="button" disabled={auth.busy} onClick={async () => { setMessage(""); const result = await auth.signOut(); if (!result.ok) setMessage(result.message); else switchMode("welcome"); }} className={accountActionStyle}>{auth.busy ? "Logging out…" : "Log out"}</button>
         </div> : mode === "welcome" ? <div className="mt-7 space-y-3">
-          <button type="button" onClick={() => switchMode("signup")} className={actionStyle}>Create account</button>
+          <button type="button" onClick={() => switchMode("signup")} className={accountActionStyle}>Create account</button>
           <button type="button" onClick={() => switchMode("signin")} className="min-h-12 w-full rounded-2xl border border-[color:var(--hs-border)] bg-white px-4 py-3 text-base font-semibold focus-visible:outline-2">Sign in</button>
           <button type="button" onClick={onStudyPreferences} className="min-h-11 w-full text-sm font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">Study preferences</button>
           <p className="pt-2 text-center text-xs leading-5 text-[color:var(--hs-text-secondary)]">Just browsing? The map is always here.</p>
+        </div> : mode === "recovery-sent" ? <div className="mt-6 space-y-5">
+          <MailCheck aria-hidden="true" className="h-10 w-10 text-[color:var(--hs-green)]" />
+          <p role="status" className="text-sm leading-6">{RECOVERY_EMAIL_SENT}</p>
+          <p className="text-xs leading-5 text-[color:var(--hs-text-secondary)]">Check your spam folder too. Open the link in this browser to choose a new password.</p>
+          <button type="button" onClick={() => switchMode("signin")} className={accountActionStyle}>Back to sign in</button>
+          <button type="button" onClick={() => switchMode("recovery")} className="min-h-11 w-full text-sm text-[color:var(--hs-green-deep)] underline">Try another email or request again</button>
         </div> : mode === "confirmation" ? <div className="mt-6 space-y-5">
           <MailCheck aria-hidden="true" className="h-10 w-10 text-[color:var(--hs-green)]" />
           <p role="status" className="break-words text-sm leading-6">Check <strong>{fields.email.trim()}</strong> for your confirmation link, then return to sign in. Check your spam folder too. If you already have an account, sign in below.</p>
-          <button type="button" onClick={() => switchMode("signin")} className={actionStyle}>Back to sign in</button>
+          <button type="button" onClick={() => switchMode("signin")} className={accountActionStyle}>Back to sign in</button>
         </div> : <form onSubmit={submit} noValidate className="mt-6 space-y-4">
           {signup && input("username", "Username", "3–20 lowercase letters, numbers or underscores.")}
           {input("email", "Email")}
-          {input("password", "Password", signup ? "At least 8 characters. A longer password is even better." : undefined)}
-          <button type="submit" disabled={auth.busy} className={`${actionStyle} mt-6`}>{auth.busy && <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />}{auth.busy ? signup ? "Creating account…" : "Signing in…" : signup ? "Create account" : "Sign in"}</button>
-          <button type="button" disabled={auth.busy} onClick={() => switchMode(signup ? "signin" : "signup")} className="min-h-11 w-full text-sm font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">{signup ? "Already have an account? Sign in" : "New to Hot Seats? Create account"}</button>
+          {!recovery && input("password", "Password", signup ? "At least 8 characters. A longer password is even better." : undefined)}
+          {mode === "signin" && <button type="button" disabled={auth.busy} onClick={() => switchMode("recovery")} className="min-h-11 text-sm font-medium text-[color:var(--hs-green-deep)] underline-offset-4 hover:underline focus-visible:outline-2">Forgot password?</button>}
+          <button type="submit" disabled={auth.busy} className={`${accountActionStyle} mt-6`}>{auth.busy && <LoaderCircle aria-hidden="true" className="h-4 w-4 animate-spin" />}{auth.busy ? recovery ? "Sending link…" : signup ? "Creating account…" : "Signing in…" : recovery ? "Send reset link" : signup ? "Create account" : "Sign in"}</button>
+          <button type="button" disabled={auth.busy} onClick={() => switchMode(recovery || signup ? "signin" : "signup")} className="min-h-11 w-full text-sm font-medium text-[color:var(--hs-green-deep)] underline underline-offset-4">{recovery ? "Back to sign in" : signup ? "Already have an account? Sign in" : "New to Hot Seats? Create account"}</button>
         </form>}
       {message && <p role="alert" className="mt-4 rounded-2xl bg-red-50 p-3 text-sm leading-5 text-red-800">{message}</p>}
     </div>

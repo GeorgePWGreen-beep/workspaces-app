@@ -201,3 +201,5 @@ upload is included. Password recovery/resend UI, OAuth, social features, Saved
 persistence, Match, preferences and admin features are outside this change. Saved
 and Friends remain their existing empty states. No service-role credentials were
 added to the app; only the existing public configuration is used.
+
+Password recovery is documented in [password-recovery.md](password-recovery.md), including its separate callback, redirect allowlist and email template settings.

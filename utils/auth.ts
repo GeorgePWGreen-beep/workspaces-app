@@ -25,3 +25,24 @@ export function authErrorMessage(error: { code?: string; status?: number }): str
   if (error.code === "signup_disabled") return "New accounts aren’t available right now. Please try again later.";
   return "We couldn’t complete that request. Please try again.";
 }
+
+
+export function validateRecoveryEmail(email: string): string | undefined {
+  return validateAuthFields({ username: "", email, password: "unused" }, false).email;
+}
+
+export function validateNewPassword(password: string, confirmation: string) {
+  const errors: { password?: string; confirmation?: string } = {};
+  if (password.length < PASSWORD_MIN_LENGTH) errors.password = `Use at least ${PASSWORD_MIN_LENGTH} characters.`;
+  if (!confirmation || password !== confirmation) errors.confirmation = "Your passwords don’t match.";
+  return errors;
+}
+
+export const RECOVERY_EMAIL_SENT = "If an account exists with this email, we've sent a password reset link.";
+
+export function recoveryRequestResult(error: { code?: string; status?: number; name?: string } | null): AuthResult {
+  // Account-specific failures must have the same response as an unknown email.
+  if (!error || ["user_not_found", "user_banned", "email_not_confirmed", "invalid_credentials"].includes(error.code ?? "")) return { ok: true };
+  if (error.status === 429 || error.code?.includes("rate_limit")) return { ok: false, message: "Too many requests. Please wait a little before requesting another link." };
+  return { ok: false, message: "We couldn’t send the request. Check your connection and try again shortly." };
+}

@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/types/profile";
-import { authErrorMessage, normalizeUsername, validateAuthFields, type AuthFields, type AuthResult } from "@/utils/auth";
+import { authErrorMessage, recoveryRequestResult, validateRecoveryEmail, normalizeUsername, validateAuthFields, type AuthFields, type AuthResult } from "@/utils/auth";
 
 type AuthState = { loading: boolean; user: User | null; profile: Profile | null; error: string | null };
 type AuthContextValue = AuthState & {
@@ -12,6 +12,7 @@ type AuthContextValue = AuthState & {
   signUp: (fields: AuthFields) => Promise<AuthResult>;
   signIn: (fields: AuthFields) => Promise<AuthResult>;
   signOut: () => Promise<AuthResult>;
+  requestPasswordReset: (email: string) => Promise<AuthResult>;
   retry: () => void;
 };
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -116,6 +117,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
+  async function requestPasswordReset(email: string): Promise<AuthResult> {
+    const error = validateRecoveryEmail(email);
+    if (error) return { ok: false, field: "email", message: error };
+    return perform(async () => {
+      const { error } = await client!.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/auth/recovery`,
+      });
+      return recoveryRequestResult(error);
+    });
+  }
+
   async function signOut(): Promise<AuthResult> {
     return perform(async () => {
       const { error } = await client!.auth.signOut({ scope: "local" });
@@ -126,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
-  return <AuthContext.Provider value={{ ...state, busy, signUp, signIn, signOut,
+  return <AuthContext.Provider value={{ ...state, busy, signUp, signIn, signOut, requestPasswordReset,
     retry: () => { setState((current) => ({ ...current, loading: true })); void refresh(); } }}>
     {children}
   </AuthContext.Provider>;
