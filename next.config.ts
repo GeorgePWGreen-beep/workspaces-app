@@ -3,6 +3,20 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
+      { protocol: "https", hostname: "primary.jwwb.nl", pathname: "/public/**" },
+      { protocol: "https", hostname: "s3.britishlistedbuildings.co.uk", pathname: "/lbimg/**" },
+      { protocol: "https", hostname: "pbs.twimg.com", pathname: "/media/**" },
+      { protocol: "https", hostname: "www.fitzbillies.com", pathname: "/cdn/shop/**" },
+      { protocol: "https", hostname: "assets.st-note.com", pathname: "/img/**" },
+      { protocol: "https", hostname: "ak-d.tripcdn.com", pathname: "/images/**" },
+      { protocol: "https", hostname: "lirp.cdn-website.com", pathname: "/67794b89/**" },
+      { protocol: "https", hostname: "www.yourstir.co.uk", pathname: "/cdn/shop/**" },
+      { protocol: "https", hostname: "cdn.menu-world.com", pathname: "/trockel-ulmann-freunde/**" },
+      { protocol: "https", hostname: "cdn.squaremeal.co.uk", pathname: "/restaurants/8733/images/**" },
+      { protocol: "https", hostname: "cdn.res-menu.net", pathname: "/waterstones-cafe/**" },
+      { protocol: "https", hostname: "laptopfriendly.co", pathname: "/images/places/cambridge/**" },
+      { protocol: "https", hostname: "cdn.nicholashare.co.uk", pathname: "/uploads/images/Projects/**" },
+      { protocol: "https", hostname: "static.wixstatic.com", pathname: "/media/**" },
       { protocol: "https", hostname: "www.theexeterdaily.co.uk" },
       { protocol: "https", hostname: "img.restaurantguru.com" },
       { protocol: "https", hostname: "media.licdn.com" },
