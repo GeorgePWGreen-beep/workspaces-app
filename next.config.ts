@@ -3,6 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
+      { protocol: "https", hostname: "www.filternotes.com", pathname: "/rails/active_storage/**" },
+      { protocol: "https", hostname: "www.htsestates.co.uk", pathname: "/assets/images/p/**" },
+      { protocol: "https", hostname: "cdn.corner.inc", pathname: "/place-photo/**" },
       { protocol: "https", hostname: "primary.jwwb.nl", pathname: "/public/**" },
       { protocol: "https", hostname: "s3.britishlistedbuildings.co.uk", pathname: "/lbimg/**" },
       { protocol: "https", hostname: "pbs.twimg.com", pathname: "/media/**" },
