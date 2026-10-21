@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { animate, motion, useMotionValue } from "framer-motion";
 import SavedPanel from "./SavedPanel";
 import FriendsPanel from "./FriendsPanel";
+import LivePanel from "./LivePanel";
+import type { DockSheetMode } from "./FloatingDock";
 import { Cafe } from "@/types/cafe";
 import { useStudyPreferences } from "./StudyPreferencesProvider";
 import { rankCafes } from "@/utils/matchV1";
@@ -23,7 +25,7 @@ interface WorkspacesSheetProps {
   onOpenFilters: () => void;
   isObscured?: boolean;
   cafes: Cafe[];
-  mode: "nearby" | "saved" | "friends" | "cafe" | null;
+  mode: DockSheetMode | "cafe" | null;
   selectedCafe: Cafe | null;
   onSelectCafe: (cafe: Cafe) => void;
   onDismissed: () => void;
@@ -485,9 +487,9 @@ export default function WorkspacesSheet({
 
   const isVisible = isSheetVisible && (sheetState !== "closed" || isClosing);
 
-  if (desktop && (mode === "friends" || mode === "saved")) return (
-    <aside aria-label={mode === "friends" ? "Friends" : "Saved"} className="fixed bottom-4 right-4 top-4 z-50 w-[400px] overflow-y-auto rounded-[28px] border border-[color:var(--hs-border)] bg-[color:var(--hs-bg)] py-5 shadow-xl" style={{ visibility: isObscured ? "hidden" : "visible" }}>
-      {mode === "friends" ? <FriendsPanel onAuth={onFriendsAuth} onClose={closeSheet} /> : <SavedPanel onSelectCafe={onSelectCafe} onSignIn={() => onFriendsAuth("signin")} onClose={closeSheet} />}
+  if (desktop && (mode === "friends" || mode === "saved" || mode === "live")) return (
+    <aside aria-label={mode === "friends" ? "Friends" : mode === "live" ? "LIVE" : "Saved"} className="fixed bottom-4 right-4 top-4 z-50 w-[400px] overflow-y-auto rounded-[28px] border border-[color:var(--hs-border)] bg-[color:var(--hs-bg)] py-5 shadow-xl" style={{ visibility: isObscured ? "hidden" : "visible" }}>
+      {mode === "live" ? <LivePanel onClose={closeSheet} /> : mode === "friends" ? <FriendsPanel onAuth={onFriendsAuth} onClose={closeSheet} /> : <SavedPanel onSelectCafe={onSelectCafe} onSignIn={() => onFriendsAuth("signin")} onClose={closeSheet} />}
     </aside>
   );
   if (!isVisible) return null;
@@ -514,7 +516,7 @@ export default function WorkspacesSheet({
         aria-label={
           mode === "cafe" && selectedCafe
             ? `${selectedCafe.name} details`
-            : `${mode} workspaces`
+            : mode === "live" ? "LIVE" : `${mode} workspaces`
         }
         className={`hs-bottom-sheet fixed inset-x-0 bottom-0 z-50 flex h-[95dvh] flex-col overflow-hidden rounded-t-[var(--hs-radius-sheet)] md:hidden ${
           !isContentScrollable ? "touch-none" : ""
@@ -545,6 +547,10 @@ export default function WorkspacesSheet({
           ) : mode === "saved" ? (
             <div onFocusCapture={event => { if (sheetState === "collapsed" && event.target.matches(":focus-visible")) animateToState("expanded"); }}>
               <SavedPanel onSelectCafe={onSelectCafe} onSignIn={() => onFriendsAuth("signin")} onClose={closeSheet} />
+            </div>
+          ) : mode === "live" ? (
+            <div onFocusCapture={event => { if (sheetState === "collapsed" && event.target.matches(":focus-visible")) animateToState("expanded"); }}>
+              <LivePanel onClose={closeSheet} />
             </div>
           ) : mode === "friends" ? (
             <div onFocusCapture={() => { if (sheetState === "collapsed") animateToState("expanded"); }}>

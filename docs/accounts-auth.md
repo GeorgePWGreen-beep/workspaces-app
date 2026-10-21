@@ -1,5 +1,8 @@
 # Hot Seats accounts
 
+For the current display-name editor and preset avatars, see [Profile editing](profile-editing.md).
+The original account implementation report follows.
+
 Implemented on the current Study Score v1 repository without changing cafe data,
 scoring, filters or navigation. No commit or push was made.
 
