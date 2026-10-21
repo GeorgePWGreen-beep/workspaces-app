@@ -229,6 +229,8 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
       </div>
 
       <FloatingSearch
+        city={city}
+        onChangeCity={openCityChooser}
         search={search}
         onSearchChange={changeSearch}
         cafes={filteredCafes}
@@ -265,7 +267,11 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
 
       {preferences.editorOpen && !choosingCity && !accountOpen && !filtersOpen && <StudyPreferencesSheet key={preferences.status} />}
 
-      {accountOpen && !choosingCity && <AccountSheet initialMode={accountMode} onStudyPreferences={() => { closeAccount(); preferences.openEditor(); }} onClose={closeAccount} notice={accountNotice} />}
+      {accountOpen && !choosingCity && <AccountSheet initialMode={accountMode}
+        onStudyPreferences={() => { closeAccount(); preferences.openEditor(); }}
+        onOpenSaved={() => { closeAccount(); openDockSheet("saved"); }}
+        onOpenFriends={() => { closeAccount(); openDockSheet("friends"); }}
+        onClose={closeAccount} notice={accountNotice} />}
 
       {sheetMode === null && !choosingCity && <FloatingDock onSelect={openDockSheet} />}
     </div>

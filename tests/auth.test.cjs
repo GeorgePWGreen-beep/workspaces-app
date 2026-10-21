@@ -107,6 +107,23 @@ describe('profiles migration and authorization',()=>{
    await assert.rejects(db.query("update public.profiles set avatar_url='javascript:alert(1)' where id=$1",[alice]),/check constraint/);
   });
  });
+ test('preset avatars persist with the existing constraint and remain owner-only to update',async()=>{
+  const avatar='https://hotseats.co.uk/avatars/presets/v2/oval/parted/sand/forest';
+  await as('authenticated',alice,async()=>{
+   const saved=await db.query('update public.profiles set display_name=$1,avatar_url=$2 where id=$3 returning *',['Alice Green',avatar,alice]);
+   assert.equal(saved.rows[0].username,'alice_23');
+  });
+  await as('authenticated',bob,async()=>{
+   const publicProfile=(await db.query("select * from public.get_public_profile('alice_23')")).rows[0];
+   assert.equal(publicProfile.display_name,'Alice Green');assert.equal(publicProfile.avatar_url,avatar);
+   assert.equal((await db.query("update public.profiles set display_name='Changed',avatar_url=null where id=$1 returning id",[alice])).rows.length,0);
+  });
+  await as('authenticated',alice,async()=>{
+   const restored=(await db.query('select * from public.profiles where id=$1',[alice])).rows[0];
+   assert.equal(restored.display_name,'Alice Green');assert.equal(restored.avatar_url,avatar);
+   await db.query('update public.profiles set avatar_url=null where id=$1',[alice]);
+  });
+ });
  test('editing auth metadata cannot rename a profile or grant privileges',async()=>{
   await db.query("update auth.users set raw_user_meta_data=$1 where id=$2",[JSON.stringify({username:'stolen_name',role:'admin'}),alice]);
   assert.equal((await db.query('select username from public.profiles where id=$1',[alice])).rows[0].username,'alice_23');

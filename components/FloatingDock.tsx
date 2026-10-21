@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Bookmark, MapPin, UsersRound, type LucideIcon } from "lucide-react";
+import { Bookmark, MapPin, UsersRound, Zap, type LucideIcon } from "lucide-react";
 
-export type DockSheetMode = "nearby" | "saved" | "friends";
+export type DockSheetMode = "nearby" | "saved" | "friends" | "live";
 
 interface DockItem {
   label: string;
@@ -16,6 +16,7 @@ const dockItems: DockItem[] = [
   { label: "Nearby", mode: "nearby", icon: MapPin, primary: true },
   { label: "Saved", mode: "saved", icon: Bookmark },
   { label: "Friends", mode: "friends", icon: UsersRound },
+  { label: "LIVE", mode: "live", icon: Zap },
 ];
 
 export default function FloatingDock({
@@ -38,7 +39,7 @@ export default function FloatingDock({
           aria-label={`Open ${label}`}
           onClick={() => onSelect(mode)}
           whileTap={{ scale: 0.94 }}
-          className={`flex h-12 min-w-[76px] flex-col items-center justify-center gap-0.5 rounded-2xl text-[12px] font-medium tracking-[-0.01em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-green)] focus-visible:ring-offset-2 ${
+          className={`flex h-12 min-w-11 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl text-[12px] font-medium tracking-[-0.01em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--hs-green)] focus-visible:ring-offset-2 ${
             primary
               ? "text-[color:var(--hs-green)]"
               : "text-[color:var(--hs-text-secondary)]"

@@ -53,7 +53,15 @@ function identity(req) {
       let rows;
       if (url.pathname === '/rest/v1/rpc/get_public_profile') rows = (await db.query('select * from get_public_profile($1)', [body.requested_username])).rows;
       else if (url.pathname === '/rest/v1/rpc/get_friendships') rows = (await db.query('select * from get_friendships() order by created_at desc,id offset $1 limit $2', [Number(url.searchParams.get('offset') || 0), Number(url.searchParams.get('limit') || 100)])).rows;
-      else if (url.pathname === '/rest/v1/profiles') rows = (await db.query('select * from profiles')).rows;
+      else if (url.pathname === '/rest/v1/profiles') {
+        if (req.method === 'PATCH') {
+          const columns = ['display_name', 'avatar_url'].filter(column => Object.hasOwn(body, column));
+          if (!columns.length) return send({ message: 'No profile fields supplied' }, 400);
+          const values = columns.map(column => body[column]);
+          values.push(url.searchParams.get('id')?.replace(/^eq\./, ''));
+          rows = (await db.query(`update public.profiles set ${columns.map((column, index) => `${column}=$${index + 1}`).join(',')} where id=$${values.length} returning *`, values)).rows;
+        } else rows = (await db.query('select * from profiles')).rows;
+      }
       else if (url.pathname === '/rest/v1/user_study_preferences') rows = (await db.query('select * from user_study_preferences')).rows;
       else if (url.pathname === '/rest/v1/saved_cafes') {
         if (req.method === 'POST') rows = (await db.query('insert into saved_cafes(user_id,cafe_id) values($1,$2) returning *', [body.user_id, body.cafe_id])).rows;

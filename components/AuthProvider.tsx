@@ -5,6 +5,8 @@ import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/types/profile";
 import { authErrorMessage, recoveryRequestResult, validateRecoveryEmail, normalizeUsername, validateAuthFields, type AuthFields, type AuthResult } from "@/utils/auth";
+import { updateOwnProfile, type ProfileUpdateResult } from "@/lib/data/profile";
+import type { ProfileEdits } from "@/utils/profile";
 
 type AuthState = { loading: boolean; user: User | null; profile: Profile | null; error: string | null };
 type AuthContextValue = AuthState & {
@@ -13,6 +15,7 @@ type AuthContextValue = AuthState & {
   signIn: (fields: AuthFields) => Promise<AuthResult>;
   signOut: () => Promise<AuthResult>;
   requestPasswordReset: (email: string) => Promise<AuthResult>;
+  updateProfile: (edits: ProfileEdits) => Promise<ProfileUpdateResult>;
   retry: () => void;
 };
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -70,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => { mounted.current = false; data?.subscription.unsubscribe(); };
   }, [client, refresh]);
 
-  async function perform(action: () => Promise<AuthResult>): Promise<AuthResult> {
+  async function perform<T extends { ok: boolean }>(action: () => Promise<T>): Promise<T | { ok: false; message: string }> {
     if (submitting.current) return { ok: false, message: "Please wait for the current request." };
     if (!client) return { ok: false, message: "Accounts aren’t available right now. Please try again later." };
     submitting.current = true; setBusy(true);
@@ -138,7 +141,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
-  return <AuthContext.Provider value={{ ...state, busy, signUp, signIn, signOut, requestPasswordReset,
+  async function updateProfile(edits: ProfileEdits): Promise<ProfileUpdateResult> {
+    const userId = state.user?.id;
+    if (!userId || !state.profile || state.profile.id !== userId) return { ok: false, message: "Your profile isn’t available. Close the editor and retry your account." };
+    const request = generation.current;
+    return perform(async () => {
+      const result = await updateOwnProfile(client!, userId, edits);
+      if (!result.ok) return result;
+      // Do not restore a stale user/profile after a sign-out or session refresh.
+      if (!mounted.current || generation.current !== request) {
+        if (mounted.current) void refresh();
+        return { ok: false as const, message: "Your session changed while saving. Reopen your profile to check the latest details." };
+      }
+      generation.current++;
+      setState(current => current.user?.id === userId ? { ...current, profile: result.profile } : current);
+      return result;
+    });
+  }
+
+  return <AuthContext.Provider value={{ ...state, busy, signUp, signIn, signOut, requestPasswordReset, updateProfile,
     retry: () => { setState((current) => ({ ...current, loading: true })); void refresh(); } }}>
     {children}
   </AuthContext.Provider>;

@@ -48,7 +48,8 @@ export default function CafeSearch({ search, onSearchChange, cafes, onSelectCafe
     popup.current?.querySelectorAll<HTMLButtonElement>("button")[index]?.focus();
   };
 
-  return <div className="pointer-events-auto relative min-w-0" onBlur={event => {
+  // On mobile the popup anchors to FloatingSearch's full city/search row.
+  return <div className={`pointer-events-auto min-w-0 ${mobile ? "flex-1" : "relative"}`} onBlur={event => {
     if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
   }} onKeyDown={event => {
     if (event.key === "Escape") {
@@ -56,12 +57,12 @@ export default function CafeSearch({ search, onSearchChange, cafes, onSelectCafe
     }
   }}>
     <div className={mobile
-      ? "hs-glass-strong flex h-14 w-full items-center gap-3 rounded-[var(--hs-radius-control)] pl-[18px] pr-1.5 focus-within:ring-2 focus-within:ring-[color:var(--hs-green)]"
+      ? "hs-glass-strong flex h-14 w-full items-center gap-1.5 rounded-[var(--hs-radius-control)] pl-2.5 pr-1 focus-within:ring-2 focus-within:ring-[color:var(--hs-green)]"
       : "flex h-12 items-center gap-2 rounded-xl border border-[color:var(--hs-border)] bg-white pl-4 pr-1 shadow-sm focus-within:ring-2 focus-within:ring-[color:var(--hs-sage-soft)]"}>
-      <Search aria-hidden="true" className={`${mobile ? "h-6 w-6" : "h-4 w-4"} shrink-0 text-[color:var(--hs-text-secondary)]`} strokeWidth={1.9} />
+      <Search aria-hidden="true" className={`${mobile ? "h-[18px] w-[18px]" : "h-4 w-4"} shrink-0 text-[color:var(--hs-text-secondary)]`} strokeWidth={1.9} />
       <input ref={input} type="text" role="combobox" aria-haspopup="dialog" aria-expanded={expanded}
         aria-controls={expanded ? id : undefined} aria-label="Search cafés and workspaces" autoComplete="off" autoCorrect="off" spellCheck={false}
-        enterKeyHint="search" placeholder={mobile ? "Search cafés and workspaces" : "Search cafes..."} value={search}
+        enterKeyHint="search" placeholder={mobile ? "Search cafés..." : "Search cafes..."} value={search}
         onFocus={() => setOpen(true)} onChange={event => { setOpen(true); onSearchChange(event.target.value); }}
         onKeyDown={event => {
           if (event.key === "ArrowDown" || event.key === "ArrowUp") {
@@ -74,7 +75,7 @@ export default function CafeSearch({ search, onSearchChange, cafes, onSelectCafe
             if (cafe) select(cafe); else setOpen(true);
           }
         }}
-        className={`min-w-0 flex-1 bg-transparent ${mobile ? "text-[17px] tracking-[-0.012em]" : "text-base"} text-[color:var(--hs-text)] outline-none placeholder:text-[color:var(--hs-text-secondary)]`} />
+        className={`min-w-0 flex-1 bg-transparent text-base ${mobile ? "tracking-[-0.012em]" : ""} text-[color:var(--hs-text)] outline-none placeholder:text-[color:var(--hs-text-secondary)]`} />
       {search && <button type="button" aria-label="Clear search" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-[color:var(--hs-text-secondary)] hover:bg-[color:var(--hs-green-soft)]"
         onClick={() => { onSearchChange(""); setOpen(false); input.current?.focus(); }}><X aria-hidden="true" className="h-4 w-4" /></button>}
     </div>

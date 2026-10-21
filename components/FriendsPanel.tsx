@@ -6,23 +6,14 @@ import { useAuth } from "./AuthProvider";
 import { changeFriendship, getFriendships, searchProfiles, sendFriendRequest } from "@/lib/data/friends";
 import { friendError, groupFriendships, normalizeFriendUsername, validFriendUsername } from "@/utils/friends";
 import type { FriendAction, FriendProfile, FriendRequest } from "@/types/friends";
+import ProfileAvatar from "./ProfileAvatar";
 
 const primary = "min-h-11 rounded-xl bg-[color:var(--hs-green)] px-4 py-2 text-sm font-semibold text-white hover:bg-[color:var(--hs-green-deep)] disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2";
 const secondary = "min-h-11 rounded-xl px-3 py-2 text-sm font-medium text-[color:var(--hs-text-secondary)] hover:bg-[color:var(--hs-green-soft)] disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2";
 type Props = { onAuth: (mode: "signin" | "signup") => void; onClose: () => void };
 
-function Avatar({ profile }: { profile: FriendProfile }) {
-  const [failed, setFailed] = useState(false);
-  return <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-[15px] bg-[#e8eee2] text-base font-bold text-[color:var(--hs-green-deep)]">
-    {profile.avatar_url?.startsWith("https://") && !failed
-      // Public profile images are arbitrary HTTPS URLs; never forward the referring page.
-      // eslint-disable-next-line @next/next/no-img-element
-      ? <img src={profile.avatar_url} alt="" referrerPolicy="no-referrer" className="h-full w-full object-cover" onError={() => setFailed(true)} />
-      : (profile.display_name || profile.username).slice(0, 1).toUpperCase()}
-  </span>;
-}
 function Person({ profile }: { profile: FriendProfile }) {
-  return <div className="flex min-w-0 items-center gap-3"><Avatar key={profile.avatar_url} profile={profile} /><div className="min-w-0"><p className="break-words text-[15px] font-semibold">{profile.display_name || profile.username}</p><p className="break-all text-xs leading-5 text-[color:var(--hs-text-secondary)]">@{profile.username}</p></div></div>;
+  return <div className="flex min-w-0 items-center gap-3"><ProfileAvatar name={profile.display_name || profile.username} source={profile.avatar_url} /><div className="min-w-0"><p className="break-words text-[15px] font-semibold">{profile.display_name || profile.username}</p><p className="break-all text-xs leading-5 text-[color:var(--hs-text-secondary)]">@{profile.username}</p></div></div>;
 }
 
 export default function FriendsPanel({ onAuth, onClose }: Props) {
