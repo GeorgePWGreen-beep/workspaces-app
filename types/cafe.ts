@@ -10,6 +10,8 @@ export type Cafe = {
   isIndependent: boolean | null;
   seatCount: number | null;
   lastVerifiedAt: string | null;
+  // A research date alone does not confirm all seven Study Score inputs.
+  studyScoreVerifiedAt?: string | null;
   weeklyOpeningHours: WeeklyOpeningHours | null;
   name: string;
   studyScore: number;
