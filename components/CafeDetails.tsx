@@ -225,7 +225,7 @@ export default function CafeDetails({ cafe, onSignIn }: CafeDetailsProps) {
         <div className="my-6 border-t border-[color:var(--hs-border)]" />
 
         <CafeActions key={cafe.id ?? cafe.name} cafe={cafe} onSignIn={onSignIn} />
-        {verifiedDate && <p className="mt-5 text-center text-[12px] leading-5 text-[color:var(--hs-text-tertiary)]">Last verified <time dateTime={cafe.lastVerifiedAt!}>{verifiedDate}</time></p>}
+        {verifiedDate && <p className="mt-5 text-center text-[12px] leading-5 text-[color:var(--hs-text-tertiary)]">Venue details last reviewed <time dateTime={cafe.lastVerifiedAt!}>{verifiedDate}</time></p>}
       </div>
     </div>
   );
