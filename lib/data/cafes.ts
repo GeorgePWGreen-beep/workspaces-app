@@ -18,6 +18,7 @@ export function mapCafeRowToCafe(row: CafeRow): Cafe {
     isIndependent: typeof row.is_independent === "boolean" ? row.is_independent : null,
     seatCount: row.seat_count ?? null,
     lastVerifiedAt: row.last_verified_at ?? null,
+    studyScoreVerifiedAt: row.study_score_verified_at ?? null,
     weeklyOpeningHours: isWeeklyOpeningHours(row.weekly_opening_hours) ? row.weekly_opening_hours : null,
     name: row.name,
     // The database maintains v1, retaining the stored score for incomplete rows.
