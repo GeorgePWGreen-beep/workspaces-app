@@ -73,8 +73,8 @@ export default function CafeDetails({ cafe, onSignIn }: CafeDetailsProps) {
   const scoreAnchor = useRef<HTMLDivElement>(null);
   const dismissScoreIntroduction = () => { dismissScore(); scoreAnchor.current?.focus({ preventScroll: true }); };
   const verifiedDate = formatVerifiedDate(cafe.lastVerifiedAt, CITY_CONFIG[cafe.city].timeZone);
-  // No recorded verification date: distinguish provisional scores from checked data.
-  const scoreIsEstimated = cafe.lastVerifiedAt === null;
+  // General venue research does not verify the full seven-factor Study Score.
+  const scoreIsEstimated = !cafe.studyScoreVerifiedAt;
   const features: {
     id: string;
     icon: LucideIcon;
