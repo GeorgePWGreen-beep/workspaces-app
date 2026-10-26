@@ -45,6 +45,7 @@ export interface Database {
           is_independent: boolean | null;
           seat_count: number | null;
           last_verified_at: string | null;
+          study_score_verified_at: string | null;
           weekly_opening_hours: WeeklyOpeningHours | null;
           id: string;
           slug: string;
@@ -73,6 +74,7 @@ export interface Database {
           is_independent?: boolean | null;
           seat_count?: number | null;
           last_verified_at?: string | null;
+          study_score_verified_at?: string | null;
           weekly_opening_hours?: WeeklyOpeningHours | null;
           id?: string;
           slug: string;
