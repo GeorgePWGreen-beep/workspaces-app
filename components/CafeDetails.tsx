@@ -73,6 +73,8 @@ export default function CafeDetails({ cafe, onSignIn }: CafeDetailsProps) {
   const scoreAnchor = useRef<HTMLDivElement>(null);
   const dismissScoreIntroduction = () => { dismissScore(); scoreAnchor.current?.focus({ preventScroll: true }); };
   const verifiedDate = formatVerifiedDate(cafe.lastVerifiedAt, CITY_CONFIG[cafe.city].timeZone);
+  // No recorded verification date: distinguish provisional scores from checked data.
+  const scoreIsEstimated = cafe.lastVerifiedAt === null;
   const features: {
     id: string;
     icon: LucideIcon;
@@ -118,9 +120,9 @@ export default function CafeDetails({ cafe, onSignIn }: CafeDetailsProps) {
     {
       id: "busyness",
       icon: Users,
-      title: "Business",
+      title: "Crowd level",
       value: cafe.busyness,
-      chipLabel: `${cafe.busyness} business`,
+      chipLabel: cafe.busyness === "Busy" ? "Usually busy" : cafe.busyness === "Moderate" ? "Moderately busy" : "Usually quiet",
       tone:
         cafe.busyness === "Quiet"
           ? "good"
@@ -136,8 +138,13 @@ export default function CafeDetails({ cafe, onSignIn }: CafeDetailsProps) {
     >
       <div className="relative">
         <CafeHeroImage src={cafe.image} cafeName={cafe.name} />
-        <div ref={scoreAnchor} tabIndex={-1} aria-label={`Study Score ${cafe.studyScore} out of 100`} data-score-introduction-highlight={scoreVisible || undefined} className={`absolute bottom-0 right-5 z-10 w-[112px] translate-y-[65%] rounded-full outline-none min-[390px]:w-[120px] ${scoreVisible ? "ring-4 ring-[color:var(--hs-green-soft)]" : ""}`}>
+        <div ref={scoreAnchor} tabIndex={-1} aria-label={`${scoreIsEstimated ? "Estimated " : ""}Study Score ${cafe.studyScore} out of 100`} data-score-introduction-highlight={scoreVisible || undefined} className={`absolute bottom-0 right-5 z-10 w-[112px] translate-y-[65%] rounded-full outline-none min-[390px]:w-[120px] ${scoreVisible ? "ring-4 ring-[color:var(--hs-green-soft)]" : ""}`}>
           <StudyScore score={cafe.studyScore} />
+          {scoreIsEstimated && (
+            <span title="This score is based on available information and has not been verified." className="pointer-events-none absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-[#E1E5DE] bg-[#FCFCFA] px-2.5 py-0.5 text-[10px] font-semibold leading-3 tracking-wide text-[#5E6B63] shadow-[0_1px_4px_rgba(0,0,0,0.06)]">
+              Estimated
+            </span>
+          )}
         </div>
       </div>
 
