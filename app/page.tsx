@@ -1,7 +1,21 @@
 import { connection } from "next/server";
+import type { Metadata } from "next";
 import Link from "next/link";
 import HomeClient from "@/components/HomeClient";
 import { getCafes } from "@/lib/data/cafes";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: { url: "/" },
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Hot Seats",
+  alternateName: "hotseats.co.uk",
+  url: "https://hotseats.co.uk/",
+};
 
 export default async function Home() {
   await connection();
@@ -32,5 +46,13 @@ export default async function Home() {
     );
   }
 
-  return <HomeClient cafes={cafes} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <HomeClient cafes={cafes} />
+    </>
+  );
 }

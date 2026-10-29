@@ -186,7 +186,18 @@ function HomeExperience({ cafes }: { cafes: Cafe[] }) {
     setSheetMode(null);
   }, []);
 
-  if (!storageReady || !city || onboardingNeeded === null) return <main className="grid h-dvh place-items-center bg-[color:var(--hs-bg)]"><div className="flex flex-col items-center gap-4"><BrandLockup compact /><p role="status" className="text-sm text-[color:var(--hs-text-secondary)]">Getting Hot Seats ready...</p></div></main>;
+  if (!storageReady || !city || onboardingNeeded === null) return (
+    <main className="grid h-dvh place-items-center bg-[color:var(--hs-bg)] px-6">
+      <div className="flex max-w-md flex-col items-center gap-3 text-center">
+        <BrandLockup compact />
+        <h1 className="text-xl font-bold text-[color:var(--hs-text)]">Hot Seats</h1>
+        <p className="text-sm text-[color:var(--hs-text-secondary)]">
+          Find study-friendly cafés in Exeter and Cambridge. Compare Wi-Fi, seating, noise levels and Study Scores.
+        </p>
+        <p role="status" className="text-xs text-[color:var(--hs-text-secondary)]">Getting Hot Seats ready...</p>
+      </div>
+    </main>
+  );
 
   if (onboardingNeeded) return <OnboardingFlow city={city} onFinish={finishOnboarding} />;
 
