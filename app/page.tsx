@@ -9,6 +9,14 @@ export const metadata: Metadata = {
   openGraph: { url: "/" },
 };
 
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Hot Seats",
+  alternateName: "hotseats.co.uk",
+  url: "https://hotseats.co.uk/",
+};
+
 export default async function Home() {
   await connection();
 
@@ -38,5 +46,13 @@ export default async function Home() {
     );
   }
 
-  return <HomeClient cafes={cafes} />;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <HomeClient cafes={cafes} />
+    </>
+  );
 }
