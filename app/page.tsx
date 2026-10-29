@@ -1,7 +1,13 @@
 import { connection } from "next/server";
+import type { Metadata } from "next";
 import Link from "next/link";
 import HomeClient from "@/components/HomeClient";
 import { getCafes } from "@/lib/data/cafes";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: { url: "/" },
+};
 
 export default async function Home() {
   await connection();
