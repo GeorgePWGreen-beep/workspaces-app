@@ -4,8 +4,22 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
-  title: "Hot Seats — Find your study spot",
-  description: "Find a study-friendly café near you.",
+  metadataBase: new URL("https://hotseats.co.uk"),
+  applicationName: "Hot Seats",
+  title: "Hot Seats | Study-Friendly Cafés in Exeter & Cambridge",
+  description: "Discover study-friendly cafés in Exeter and Cambridge. Compare Wi-Fi, sockets, seating, noise levels and Hot Seats Study Scores to find your ideal workspace.",
+  openGraph: {
+    type: "website",
+    siteName: "Hot Seats",
+    locale: "en_GB",
+    title: "Hot Seats | Study-Friendly Cafés in Exeter & Cambridge",
+    description: "Discover study-friendly cafés in Exeter and Cambridge. Compare Wi-Fi, sockets, seating, noise levels and Hot Seats Study Scores to find your ideal workspace.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Hot Seats | Study-Friendly Cafés in Exeter & Cambridge",
+    description: "Discover study-friendly cafés in Exeter and Cambridge. Compare Wi-Fi, sockets, seating, noise levels and Hot Seats Study Scores to find your ideal workspace.",
+  },
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
